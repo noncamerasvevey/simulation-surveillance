@@ -136,11 +136,13 @@
     <div class="sidebar-text">
       Toi aussi, installe <strong>44 caméras</strong> de vidéosurveillance pour <strong>15’370 CHF</strong> pièce.
       <br><br>
-      Les cercles couvrent <strong>400 m²</strong> – soit la limite haute de l'efficacité selon l’"expert" payé <strong>96’000 CHF</strong>.
+      Les cercles couvrent <strong>400 m²</strong> – soit la limite haute de reconnaissance d'un visage selon l’"expert" payé <strong>96’000 CHF</strong>.
       <br><br>
-      🖱️ Clique sur la carte pour ajouter une caméra.
+      👆 Clique sur la carte pour ajouter une caméra.
       <br><br>
       📱 Sur mobile, glisse ce panneau vers la gauche pour le cacher, et vers la droite pour le rouvrir.
+      <br><br>
+      <strong>Si tu parviens à placer 44 caméras, ton projet sera évalué! Courage!</strong>
     </div>
 
     <button class="btn-primary" onclick="resetMap()">Réinitialiser</button>
@@ -150,7 +152,7 @@
   <div id="map"></div>
 
   <!-- Encadrés fixes -->
-  <div id="camera-count-box" class="info-box" style="display:none;">📦 Caméras : <span id="cameraCount">0</span></div>
+  <div id="camera-count-box" class="info-box" style="display:none;">🎬Caméras : <span id="cameraCount">0</span></div>
   <div id="total-cost-box" class="info-box" style="display:none;">💰 Total : <span id="costCount">0 CHF</span></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -158,8 +160,8 @@
     const map = L.map('map').setView([46.46317, 6.84255], 17.6);
 
     // Fond OSM en niveau de gris (grayscale)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap, CartoDB'
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
     const MAX_MARKERS = 44;
@@ -180,7 +182,10 @@
 
     map.on('click', function (e) {
       if (markerCount >= MAX_MARKERS) {
-        alert("Vous avez atteint la limite de 44 caméras.");
+        alert("Vous avez atteint la limite de 44 caméras. 
+              <br><br>
+              L'étude <em>Piza et al. (2019)</em> a montré que 80 % des infractions liées au trafic de drogue se maintenaient dans les zones vidéosurveillées.<br><br>
+      L'étude de l'<em>Université de Neuchâtel à Genève (2014–2016)</em> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.");
         return;
       }
 if (cameraCount === 44) {
