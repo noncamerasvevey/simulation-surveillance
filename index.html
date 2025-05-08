@@ -114,6 +114,35 @@
       top: 60px;
     }
 
+    /* Legend Styles */
+    .legend {
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      line-height: 20px;
+      color: #333;
+    }
+    
+    .legend i {
+      width: 16px;
+      height: 16px;
+      float: left;
+      margin-right: 8px;
+      opacity: 0.8;
+    }
+    
+    .legend .icon-zone {
+      background-color: #ff7800;
+      border: 1px solid rgba(255, 120, 0, 0.8);
+    }
+    
+    .legend .icon-camera {
+      background-color: #f03;
+      border: 1px solid rgba(255, 0, 0, 0.8);
+      border-radius: 50%;
+    }
+
     @media (max-width: 768px) {
       #sidebar {
         position: absolute;
@@ -125,6 +154,11 @@
 
       #sidebar.hidden {
         transform: translateX(-100%);
+      }
+
+      .legend {
+        max-width: 160px;
+        font-size: 12px;
       }
     }
   </style>
@@ -163,6 +197,49 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
+
+    // Ajout d'une légende
+    const legend = L.control({position: 'bottomright'});
+    
+    legend.onAdd = function(map) {
+      const div = L.DomUtil.create('div', 'legend');
+      
+      div.innerHTML = `
+        <div><i class="icon-zone"></i> Zone de vidéosurveillance</div>
+        <div><i class="icon-camera"></i> Couverture caméra (400 m²)</div>
+      `;
+      
+      return div;
+    };
+    
+    // Définir un style pour la zone de caméras
+    const zoneStyle = {
+      color: "#ff7800",
+      weight: 2,
+      opacity: 0.65,
+      fillOpacity: 0.4
+    };
+
+    // Charger le GeoJSON
+    fetch('zone_cameras_vevey.geojson')
+      .then(response => response.json())
+      .then(data => {
+        const cameraZone = L.geoJSON(data, {
+          style: zoneStyle,
+          onEachFeature: function(feature, layer) {
+            layer.bindTooltip("Zone de vidéosurveillance");
+          }
+        }).addTo(map);
+        
+        // Ajuster la vue pour englober la zone
+        map.fitBounds(cameraZone.getBounds());
+        
+        // Ajouter la légende une fois que la zone est chargée
+        legend.addTo(map);
+      })
+      .catch(error => {
+        console.error("Erreur lors du chargement du GeoJSON:", error);
+      });
 
     const MAX_MARKERS = 44;
     const COST_PER_MARKER = 15370;
