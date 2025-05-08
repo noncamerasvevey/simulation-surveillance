@@ -134,13 +134,15 @@
   <div id="sidebar">
     <div class="sidebar-title">📹 Simule la vidéosurveillance à Vevey</div>
     <div class="sidebar-text">
-      Toi aussi, installe <strong>44 caméras</strong> de vidéosurveillance pour <strong>15’370 CHF</strong> pièce.
+      Toi aussi, installe <strong>44 caméras</strong> de vidéosurveillance à <strong>15’370 CHF</strong> pièce.
       <br><br>
       Les cercles couvrent <strong>400 m²</strong> – soit la limite haute de reconnaissance des visages selon l’"expert" payé <strong>96’000 CHF</strong> par la municipalité.
       <br><br>
       👆 Clique sur la carte pour ajouter une caméra.
       <br><br>
       📱 Sur mobile, glisse ce panneau vers la gauche pour le cacher, et vers la droite pour le rouvrir.
+      <br><br>
+      <strong>Si tu places 44 caméras, ton projet sera évalué!</strong>
     </div>
 
     <button class="btn-primary" onclick="resetMap()">Réinitialiser</button>
@@ -180,7 +182,8 @@
 
     map.on('click', function (e) {
       if (markerCount >= MAX_MARKERS) {
-        alert("Vous avez atteint la limite de 44 caméras.");
+        alert("Vous avez atteint la limite de 44 caméras. L'étude <em>Piza et al. (2019)</em> a montré que 80 % des infractions liées au trafic de drogue se maintenaient dans les zones vidéosurveillées.<br><br>
+      L'étude de l'<em>Université de Neuchâtel à Genève (2014–2016)</em> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.");
         return;
       }
 if (cameraCount === 44) {
