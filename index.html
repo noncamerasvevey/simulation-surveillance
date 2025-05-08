@@ -160,9 +160,9 @@
     const map = L.map('map').setView([46.46317, 6.84255], 17.6);
 
     // Fond OSM en niveau de gris (grayscale)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap, CartoDB'
-    }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
 
     const MAX_MARKERS = 44;
     const COST_PER_MARKER = 15370;
