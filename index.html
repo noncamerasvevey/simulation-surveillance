@@ -276,7 +276,8 @@ if (cameraCount === 44) {
 }
 
       const latlng = e.latlng;
-
+  // 🔊 Joue le son de caisse
+  document.getElementById("cashSound").play();
       const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
       const circle = L.circle(latlng, {
         radius: RADIUS,
@@ -343,5 +344,6 @@ if (cameraCount === 44) {
       }
     });
   </script>
+  <audio id="cashSound" src="https://marcbertholet.github.io/map/cash-register-kaching-sound-effect-125042.mp3" preload="auto"></audio>
 </body>
 </html>
