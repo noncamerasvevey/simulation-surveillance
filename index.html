@@ -180,24 +180,45 @@
       popupAnchor: [0, -16]
     });
 
-    map.on('click', function (e) {
-      if (markerCount >= MAX_MARKERS) {
-        alert("Vous avez atteint la limite de 44 caméras.");
-        return;
-      }
-if (markerCount >= MAX_MARKERS) {
-  document.getElementById('study-message').style.display = 'block';
+   map.on('click', function (e) {
+  if (markerCount >= MAX_MARKERS) {
+    alert("Vous avez atteint la limite de 44 caméras.");
+    return;
+  }
 
-  L.popup({ maxWidth: 400 })
-    .setLatLng(e.latlng)
-    .setContent(`
-      <strong>Études scientifiques :</strong><br>
-      L'étude <em>Piza et al. (2019)</em> a montré que 80 % des infractions liées au trafic de drogue se maintenaient dans les zones vidéosurveillées.<br><br>
-      L'étude de l'<em>Université de Neuchâtel à Genève (2014–2016)</em> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.
-    `)
-    .openOn(map);
-}
+  const latlng = e.latlng;
 
+  const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
+  const circle = L.circle(latlng, {
+    radius: RADIUS,
+    color: 'red',
+    fillColor: '#f03',
+    fillOpacity: 0.3
+  }).addTo(map);
+
+  markers.push(marker);
+  circles.push(circle);
+
+  markerCount++;
+  totalCost += COST_PER_MARKER;
+
+  document.getElementById("cameraCount").innerText = markerCount;
+  document.getElementById("costCount").innerText = `${totalCost.toLocaleString()} CHF`;
+  document.getElementById("camera-count-box").style.display = "block";
+  document.getElementById("total-cost-box").style.display = "block";
+
+  // Affiche le popup après avoir posé la 44e caméra
+  if (markerCount === MAX_MARKERS) {
+    L.popup({ maxWidth: 400 })
+      .setLatLng(latlng)
+      .setContent(`
+        <strong>Études scientifiques :</strong><br>
+        L'étude <em>Piza et al. (2019)</em> a montré que 80 % des infractions liées au trafic de drogue se maintenaient dans les zones vidéosurveillées.<br><br>
+        L'étude de l'<em>Université de Neuchâtel à Genève (2014–2016)</em> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.
+      `)
+      .openOn(map);
+  }
+});
       const latlng = e.latlng;
 
       const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
