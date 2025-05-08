@@ -185,7 +185,7 @@
         alert("Vous avez atteint la limite de 44 caméras.");
         return;
       }
-if (markerCount === 43) {
+if (markerCount >= MAX_MARKERS) {
   document.getElementById('study-message').style.display = 'block';
 
   L.popup({ maxWidth: 400 })
