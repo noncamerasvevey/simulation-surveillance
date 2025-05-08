@@ -87,6 +87,27 @@
       background-color: #218838;
     }
 
+    .info-box {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1001;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      font-weight: bold;
+    }
+
+    #camera-count-box {
+      top: 10px;
+    }
+
+    #total-cost-box {
+      top: 60px;
+    }
+
     @media (max-width: 768px) {
       #sidebar {
         position: absolute;
@@ -107,30 +128,33 @@
   <div id="sidebar">
     <div class="sidebar-title">📹 Simule la vidéosurveillance à Vevey</div>
     <div class="sidebar-text">
-      Toi aussi, installe <strong>44 caméras</strong> de vidéosurveillance dans la ville pour <strong>15’370 CHF</strong> pièce.
+      Toi aussi, installe <strong>44 caméras</strong> de vidéosurveillance pour <strong>15’370 CHF</strong> pièce.
       <br><br>
-      Les cercles couvrent <strong>400 m²</strong> – soit la <em>limite haute de l'efficacité</em> selon l’"expert anonyme"
-      payé <strong>96’000 CHF</strong> par la Ville.
+      Les cercles couvrent <strong>400 m²</strong> – soit la limite haute de l'efficacité selon l’"expert" payé <strong>96’000 CHF</strong>.
       <br><br>
       🖱️ Clique sur la carte pour ajouter une caméra.
       <br><br>
       📱 Sur mobile, glisse ce panneau vers la gauche pour le cacher, et vers la droite pour le rouvrir.
     </div>
 
-    <div class="total-highlight" id="total">Total : 0 CHF</div>
     <button class="btn-primary" onclick="resetMap()">Réinitialiser</button>
-    <button class="btn-secondary" onclick="shareMap()">Partager</button>
+    <button class="btn-secondary" onclick="shareFacebook()">Partager sur Facebook</button>
+    <button class="btn-secondary" onclick="copyShareLink()">Copier le lien pour Instagram</button>
   </div>
 
   <div id="map"></div>
 
+  <!-- Encadrés fixes -->
+  <div id="camera-count-box" class="info-box" style="display:none;">📦 Caméras : <span id="cameraCount">0</span></div>
+  <div id="total-cost-box" class="info-box" style="display:none;">💰 Total : <span id="costCount">0 CHF</span></div>
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const map = L.map('map').setView([46.46317, 6.84255], 17.3);
+    const map = L.map('map').setView([46.46317, 6.84255], 17.6);
 
-    // Fond satellite (Esri World Imagery)
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles © Esri'
+    // Fond OSM en niveau de gris (grayscale)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap, CartoDB'
     }).addTo(map);
 
     const MAX_MARKERS = 44;
@@ -139,11 +163,8 @@
     const RADIUS = Math.sqrt(AREA / Math.PI);
     let markerCount = 0;
     let totalCost = 0;
-    let features = [];
-
     const markers = [];
     const circles = [];
-    const totalDiv = document.getElementById('total');
 
     const cameraIcon = L.icon({
       iconUrl: 'https://cdn-icons-png.flaticon.com/64/8814/8814341.png',
@@ -174,18 +195,10 @@
       markerCount++;
       totalCost += COST_PER_MARKER;
 
-      totalDiv.innerText = `Total : ${totalCost.toLocaleString()} CHF`;
-
-      features.push({
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [latlng.lng, latlng.lat]
-        },
-        properties: {
-          cost: COST_PER_MARKER
-        }
-      });
+      document.getElementById("cameraCount").innerText = markerCount;
+      document.getElementById("costCount").innerText = `${totalCost.toLocaleString()} CHF`;
+      document.getElementById("camera-count-box").style.display = "block";
+      document.getElementById("total-cost-box").style.display = "block";
     });
 
     function resetMap() {
@@ -193,17 +206,27 @@
       circles.forEach(c => map.removeLayer(c));
       markers.length = 0;
       circles.length = 0;
-      features.length = 0;
       markerCount = 0;
       totalCost = 0;
-      totalDiv.innerText = "Total : 0 CHF";
+
+      document.getElementById("cameraCount").innerText = "0";
+      document.getElementById("costCount").innerText = "0 CHF";
+      document.getElementById("camera-count-box").style.display = "none";
+      document.getElementById("total-cost-box").style.display = "none";
     }
 
-    function shareMap() {
-      alert("Partage simulé ! (à personnaliser)");
+    function shareFacebook() {
+      const url = encodeURIComponent(window.location.href);
+      const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+      window.open(fbUrl, '_blank');
     }
 
-    // Swipe gauche / droite pour cacher / montrer le panneau
+    function copyShareLink() {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Lien copié dans le presse-papiers !");
+    }
+
+    // Swipes mobile
     let touchStartX = null;
     document.addEventListener("touchstart", e => {
       touchStartX = e.touches[0].clientX;
