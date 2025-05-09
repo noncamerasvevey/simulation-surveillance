@@ -141,6 +141,17 @@
       color: #333;
     }
     
+    /* Custom Popup Styles */
+    .custom-popup .leaflet-popup-content-wrapper {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 8px;
+      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .custom-popup .leaflet-popup-tip {
+      background: rgba(255, 255, 255, 0.95);
+    }
+    
     .legend i {
       width: 16px;
       height: 16px;
@@ -278,17 +289,26 @@
 
     map.on('click', function (e) {
       if (markerCount >= MAX_MARKERS) {
-        alert("Vous avez atteint la limite de 44 caméras.");
-        
-        // Afficher le popup d'études scientifiques lorsque le maximum est atteint
-        L.popup({ maxWidth: 400 })
+        // Créer un popup esthétique pour remplacer l'alert
+        const popup = L.popup({ maxWidth: 450, className: 'custom-popup', closeOnClick: false })
           .setLatLng(e.latlng)
           .setContent(`
-            <strong>Études scientifiques :</strong><br>
-            L'étude <em>Piza et al. (2019)</em> a montré que 80 % des infractions liées au trafic de drogue se maintenaient dans les zones vidéosurveillées.<br><br>
-            L'étude de l'<em>Université de Neuchâtel à Genève (2014–2016)</em> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.
+            <div style="text-align: center; padding: 5px 0 15px 0;">
+              <h3 style="color: #c40000; margin: 0 0 10px 0;">🎬 Limite atteinte!</h3>
+              <p style="margin: 0 0 15px 0;">Vous avez placé le maximum de 44 caméras.</p>
+              <button onclick="resetMapAndClosePopup()" style="background-color: #007bff; color: white; border: none; border-radius: 4px; padding: 8px 15px; cursor: pointer;">Réinitialiser la carte</button>
+            </div>
+            <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
+            <div style="margin-top: 15px;">
+              <strong>Études scientifiques :</strong><br>
+              L'étude <em>Piza et al. (2019)</em> a montré que 80% des infractions liées au trafic de drogue se maintenaient dans les zones vidéosurveillées.<br><br>
+              L'étude de l'<em>Université de Neuchâtel à Genève (2014–2016)</em> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.
+            </div>
           `)
           .openOn(map);
+        
+        // Stocke le popup dans une variable globale pour pouvoir le fermer plus tard
+        window.currentPopup = popup;
         
         return;
       }
@@ -333,6 +353,14 @@
       document.getElementById("costCount").innerText = "0 CHF";
       document.getElementById("camera-count-box").style.display = "none";
       document.getElementById("total-cost-box").style.display = "none";
+    }
+    
+    function resetMapAndClosePopup() {
+      resetMap();
+      if (window.currentPopup) {
+        window.currentPopup.close();
+        window.currentPopup = null;
+      }
     }
 
     function toggleSound() {
