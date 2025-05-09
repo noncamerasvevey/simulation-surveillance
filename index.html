@@ -279,12 +279,8 @@
     map.on('click', function (e) {
       if (markerCount >= MAX_MARKERS) {
         alert("Vous avez atteint la limite de 44 caméras.");
-        return;
-      }
-      
-      if (markerCount === 43) {
-        document.getElementById('study-message').style.display = 'block';
-
+        
+        // Afficher le popup d'études scientifiques lorsque le maximum est atteint
         L.popup({ maxWidth: 400 })
           .setLatLng(e.latlng)
           .setContent(`
@@ -293,6 +289,8 @@
             L'étude de l'<em>Université de Neuchâtel à Genève (2014–2016)</em> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.
           `)
           .openOn(map);
+        
+        return;
       }
       
       const latlng = e.latlng;
