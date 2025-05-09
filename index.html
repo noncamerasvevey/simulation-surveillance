@@ -277,7 +277,7 @@ if (cameraCount === 44) {
       const latlng = e.latlng;
   // 🔊 Joue le son de caisse
 const sound = document.getElementById("cashSound");
-sound.volume = 0.5;
+sound.volume = 0.1;
 sound.play();
       
       const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
