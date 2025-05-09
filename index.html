@@ -93,6 +93,23 @@
       background-color: #218838;
     }
 
+    .btn-sound {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-sound:hover {
+      background-color: #c82333;
+    }
+
+    .btn-sound.muted {
+      background-color: #6c757d;
+    }
+
+    .btn-sound.muted:hover {
+      background-color: #5a6268;
+    }
+
     .info-box {
       position: absolute;
       top: 10px;
@@ -180,6 +197,7 @@
     </div>
 
     <button class="btn-primary" onclick="resetMap()">Réinitialiser</button>
+    <button id="soundToggleBtn" class="btn-sound" onclick="toggleSound()">🔇 Couper le son</button>
     <button class="btn-secondary" onclick="shareFacebook()">Partager sur Facebook</button>
   </div>
 
@@ -192,6 +210,7 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
     const map = L.map('map').setView([46.46317, 6.84255], 17.6);
+    let soundEnabled = true;
 
     // Fond OSM en niveau de gris (grayscale)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -262,23 +281,27 @@
         alert("Vous avez atteint la limite de 44 caméras.");
         return;
       }
-if (cameraCount === 44) {
-  document.getElementById('study-message').style.display = 'block';
+      
+      if (markerCount === 43) {
+        document.getElementById('study-message').style.display = 'block';
 
-  L.popup({ maxWidth: 400 })
-    .setLatLng(e.latlng)
-    .setContent(`
-      <strong>Études scientifiques :</strong><br>
-      L'étude <em>Piza et al. (2019)</em> a montré que 80 % des infractions liées au trafic de drogue se maintenaient dans les zones vidéosurveillées.<br><br>
-      L'étude de l'<em>Université de Neuchâtel à Genève (2014–2016)</em> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.
-    `)
-    .openOn(map);
-}
+        L.popup({ maxWidth: 400 })
+          .setLatLng(e.latlng)
+          .setContent(`
+            <strong>Études scientifiques :</strong><br>
+            L'étude <em>Piza et al. (2019)</em> a montré que 80 % des infractions liées au trafic de drogue se maintenaient dans les zones vidéosurveillées.<br><br>
+            L'étude de l'<em>Université de Neuchâtel à Genève (2014–2016)</em> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.
+          `)
+          .openOn(map);
+      }
+      
       const latlng = e.latlng;
-      // 🔊 Joue le son de caisse
-      const sound = document.getElementById("cashSound");
-      sound.volume = 0.1;
-      sound.play();
+      // 🔊 Joue le son de caisse si activé
+      if (soundEnabled) {
+        const sound = document.getElementById("cashSound");
+        sound.volume = 0.1;
+        sound.play();
+      }
       
       const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
       const circle = L.circle(latlng, {
@@ -312,6 +335,19 @@ if (cameraCount === 44) {
       document.getElementById("costCount").innerText = "0 CHF";
       document.getElementById("camera-count-box").style.display = "none";
       document.getElementById("total-cost-box").style.display = "none";
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const soundBtn = document.getElementById("soundToggleBtn");
+      
+      if (soundEnabled) {
+        soundBtn.textContent = "🔇 Couper le son";
+        soundBtn.classList.remove("muted");
+      } else {
+        soundBtn.textContent = "🔊 Activer le son";
+        soundBtn.classList.add("muted");
+      }
     }
 
     function shareFacebook() {
