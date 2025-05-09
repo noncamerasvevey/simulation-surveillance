@@ -274,10 +274,12 @@ if (cameraCount === 44) {
     `)
     .openOn(map);
 }
-
       const latlng = e.latlng;
   // 🔊 Joue le son de caisse
-  document.getElementById("cashSound").play();
+const sound = document.getElementById("cashSound");
+sound.volume = 0.5;
+sound.play();
+      
       const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
       const circle = L.circle(latlng, {
         radius: RADIUS,
