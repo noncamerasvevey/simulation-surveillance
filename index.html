@@ -275,10 +275,10 @@ if (cameraCount === 44) {
     .openOn(map);
 }
       const latlng = e.latlng;
-  // 🔊 Joue le son de caisse
-const sound = document.getElementById("cashSound");
-sound.volume = 0.2;
-sound.play();
+      // 🔊 Joue le son de caisse
+      const sound = document.getElementById("cashSound");
+      sound.volume = 0.1;
+      sound.play();
       
       const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
       const circle = L.circle(latlng, {
