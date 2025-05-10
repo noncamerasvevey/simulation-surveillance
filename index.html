@@ -288,7 +288,7 @@
     });
 
     map.on('click', function (e) {
-      if (markerCount >= MAX_MARKERS) {
+      if (markerCount >= MAX_MARKERS-1) {
         // Créer un popup esthétique pour remplacer l'alert
         const popup = L.popup({ maxWidth: 450, className: 'custom-popup', closeOnClick: false })
           .setLatLng(e.latlng)
