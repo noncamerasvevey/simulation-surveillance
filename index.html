@@ -133,12 +133,13 @@
 
     /* Legend Styles */
     .legend {
-      padding: 8px 10px;
+      padding: 10px 12px;
       background: rgba(255, 255, 255, 0.9);
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
       border-radius: 8px;
-      line-height: 20px;
+      line-height: 24px;
       color: #333;
+      margin-bottom: 10px;
     }
     
     /* Custom Popup Styles */
@@ -152,23 +153,48 @@
       background: rgba(255, 255, 255, 0.95);
     }
     
-    .legend i {
-      width: 16px;
-      height: 16px;
-      float: left;
-      margin-right: 8px;
-      opacity: 0.8;
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
     }
     
-    .legend .icon-zone {
+    .icon {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
+    .icon-zone {
       background-color: #f200ff;
       border: 1px solid rgba(242, 0, 255, 0.8);
     }
     
-    .legend .icon-camera {
+    .icon-camera {
       background-color: #f03;
       border: 1px solid rgba(255, 0, 0, 0.8);
       border-radius: 50%;
+    }
+
+    /* Styles pour la légende sur la carte */
+    .leaflet-control.legend {
+      padding: 12px 15px;
+      min-width: 160px;
+    }
+    
+    .leaflet-control.legend i {
+      width: 20px;
+      height: 20px;
+      float: left;
+      margin-right: 10px;
+      opacity: 0.8;
+    }
+    
+    .leaflet-control.legend div {
+      margin-bottom: 8px;
+      line-height: 20px;
+      clear: both;
     }
 
     @media (max-width: 768px) {
@@ -185,7 +211,7 @@
       }
 
       .legend {
-        max-width: 160px;
+        max-width: 100%;
         font-size: 12px;
       }
     }
@@ -196,9 +222,9 @@
   <div id="sidebar">
     <div class="sidebar-title">📹 Simule la vidéosurveillance à Vevey</div>
     <div class="sidebar-text">
-      Toi aussi, installe <strong>44 caméras</strong> de vidéosurveillance à <strong>15’370 CHF</strong> pièce.
+      Toi aussi, installe <strong>44 caméras</strong> de vidéosurveillance à <strong>15'370 CHF</strong> pièce.
       <br><br>
-      Les cercles couvrent <strong>400 m²</strong> – soit la limite haute de reconnaissance des visages selon l’ «expert» payé <strong>96’000 CHF</strong> par la municipalité.
+      Les cercles couvrent <strong>400 m²</strong> – soit la limite haute de reconnaissance des visages selon l' «expert» payé <strong>96'000 CHF</strong> par la municipalité.
       <br><br>
       👆 Clique sur la carte pour ajouter une caméra.
       <br><br>
@@ -210,6 +236,18 @@
     <button class="btn-primary" onclick="resetMap()">Réinitialiser</button>
     <button id="soundToggleBtn" class="btn-sound" onclick="toggleSound()">🔇 Couper le son</button>
     <button class="btn-secondary" onclick="shareFacebook()">Partager sur Facebook</button>
+
+    <!-- Nouvelle légende dans le sidebar -->
+    <div class="legend" style="margin-top: 20px; border: 1px solid #ddd;">
+      <div class="sidebar-title">Légende</div>
+      <div class="legend-item">
+        <span class="icon icon-zone"></span> Zone de vidéosurveillance
+      </div>
+      <div class="legend-item">
+        <span class="icon icon-camera"></span> Couverture caméra (400 m²)
+      </div>
+    </div>
+
   </div>
 
   <div id="map"></div>
@@ -228,15 +266,15 @@
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-    // Ajout d'une légende
+    // Garder la légende existante sur la carte
     const legend = L.control({position: 'bottomright'});
     
     legend.onAdd = function(map) {
       const div = L.DomUtil.create('div', 'legend');
       
       div.innerHTML = `
-        <div><i class="icon-zone"></i> Zone de vidéosurveillance</div>
-        <div><i class="icon-camera"></i> Couverture caméra (400 m²)</div>
+        <div><i class="icon-zone" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i> Zone de vidéosurveillance</div>
+        <div><i class="icon-camera" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i> Couverture caméra (400 m²)</div>
       `;
       
       return div;
@@ -264,7 +302,7 @@
         // Ajuster la vue pour englober la zone
         map.fitBounds(cameraZone.getBounds());
         
-        // Ajouter la légende une fois que la zone est chargée
+        // Ajouter la légende à la carte
         legend.addTo(map);
       })
       .catch(error => {
