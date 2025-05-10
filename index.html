@@ -322,6 +322,8 @@
   <div id="total-cost-box" class="info-box" style="display:none;">💰 Total : <span id="costCount">0 CHF</span></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Add Turf.js for geofencing point-in-polygon check -->
+  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
   <script>
     const map = L.map('map').setView([46.46317, 6.84255], 17.6);
     let soundEnabled = true;
@@ -353,10 +355,14 @@
       fillOpacity: 0.05
     };
 
+    let cameraZoneData; // Store the GeoJSON data globally
+
     // Charger le GeoJSON
     fetch('zone_cameras_vevey.geojson')
       .then(response => response.json())
       .then(data => {
+        cameraZoneData = data; // Store for later use in click validation
+        
         const cameraZone = L.geoJSON(data, {
           style: zoneStyle,
           onEachFeature: function(feature, layer) {
@@ -390,9 +396,13 @@
       popupAnchor: [0, -16]
     });
 
+    // Error sound for when user clicks outside allowed zone
+    const errorSound = new Audio('https://freesound.org/data/previews/220/220914_4096255-lq.mp3');
+    errorSound.volume = 0.1;
+
     map.on('click', function (e) {
-      if (markerCount >= MAX_MARKERS-1) {
-        // Create fullscreen popup
+      if (markerCount >= MAX_MARKERS) {
+        // Create fullscreen popup (your existing code)
         const popupOverlay = document.createElement('div');
         popupOverlay.className = 'fullscreen-popup';
         
@@ -421,8 +431,44 @@
         return;
       }
       
+      // Check if the clicked point is within the allowed zone
+      const point = turf.point([e.latlng.lng, e.latlng.lat]);
+      let isInZone = false;
+      
+      // Loop through all features in the GeoJSON
+      if (cameraZoneData && cameraZoneData.features) {
+        for (const feature of cameraZoneData.features) {
+          if (turf.booleanPointInPolygon(point, feature.geometry)) {
+            isInZone = true;
+            break;
+          }
+        }
+      }
+      
+      if (!isInZone) {
+        // Point is outside the allowed zone - show error message
+        const errorPopup = L.popup({ className: 'error-popup' })
+          .setLatLng(e.latlng)
+          .setContent('<div style="font-weight:bold;">🚫 Placement impossible. Les caméras doivent être dans la zone délimitée.</div>')
+          .openOn(map);
+        
+        // Play error sound instead of cash sound if enabled
+        if (soundEnabled) {
+          errorSound.play();
+        }
+        
+        // Auto-close the error popup after 2 seconds
+        setTimeout(() => {
+          map.closePopup(errorPopup);
+        }, 2000);
+        
+        return;
+      }
+      
+      // If we're here, the point is valid - continue with marker placement
       const latlng = e.latlng;
-      // 🔊 Joue le son de caisse si activé
+      
+      // Play cash sound if enabled
       if (soundEnabled) {
         const sound = document.getElementById("cashSound");
         sound.volume = 0.1;
@@ -448,6 +494,9 @@
       document.getElementById("camera-count-box").style.display = "block";
       document.getElementById("total-cost-box").style.display = "block";
     });
+
+    // Your existing functions: resetMap, toggleSound, etc.
+    // ...
 
     function resetMap() {
       markers.forEach(m => map.removeLayer(m));
