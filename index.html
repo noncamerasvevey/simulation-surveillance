@@ -175,6 +175,7 @@
       background-color: #f03;
       border: 1px solid rgba(255, 0, 0, 0.8);
       border-radius: 50%;
+      opacity: 0.3;
     }
 
     /* Styles pour la légende sur la carte */
@@ -339,7 +340,16 @@
       
       div.innerHTML = `
         <div><i class="icon-zone" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i> Zone de vidéosurveillance</div>
-        <div><i class="icon-camera" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i> Couverture caméra (400 m²)</div>
+        <div><i class="icon-camera" style="
+      width: 20px; 
+      height: 20px; 
+      display: inline-block; 
+      margin-right: 8px; 
+      background-color: #f03; 
+      border: 1px solid red; 
+      border-radius: 50%; 
+      opacity: 0.3;"></i> Couverture caméra (400 m²)
+  </div>
       `;
       
       return div;
