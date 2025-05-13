@@ -462,83 +462,111 @@
       popupAnchor: [0, -16]
     });
 
-map.on('click', function (e) {
-  if (markerCount >= MAX_MARKERS-1) {
-    // Ajouter la dernière caméra
-    const latlng = e.latlng;
-    if (soundEnabled) {
-      const sound = document.getElementById("cashSound");
-      sound.volume = 0.1;
-      sound.play();
+    // Fonction de calcul de couverture simplifiée
+    function calculateSimpleCoverage(cameras) {
+      const CAMERA_AREA = 400; // m² par caméra
+      const ZONE_AREA = 75000; // Zone totale en m²
+      
+      const numCameras = cameras.length;
+      const totalArea = numCameras * CAMERA_AREA;
+      
+      // Facteur de chevauchement basé sur le nombre de caméras
+      let overlapFactor;
+      if (numCameras <= 5) overlapFactor = 0.05;
+      else if (numCameras <= 15) overlapFactor = 0.15;
+      else if (numCameras <= 30) overlapFactor = 0.25;
+      else overlapFactor = 0.35;
+      
+      // Surface unique couverte
+      const uniqueArea = Math.min(totalArea * (1 - overlapFactor), ZONE_AREA);
+      const coveragePercentage = (uniqueArea / ZONE_AREA) * 100;
+      
+      return {
+        uniqueArea: Math.round(uniqueArea),
+        overlapPercentage: Math.round(overlapFactor * 100),
+        coveragePercentage: coveragePercentage.toFixed(2),
+        camerasPlaced: numCameras,
+        totalCost: numCameras * COST_PER_MARKER
+      };
     }
-    
-    const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
-    const circle = L.circle(latlng, {
-      radius: RADIUS,
-      color: 'red',
-      fillColor: '#f03',
-      fillOpacity: 0.3
-    }).addTo(map);
 
-    markers.push(marker);
-    circles.push(circle);
+    map.on('click', function (e) {
+      if (markerCount >= MAX_MARKERS-1) {
+        // Ajouter la dernière caméra
+        const latlng = e.latlng;
+        if (soundEnabled) {
+          const sound = document.getElementById("cashSound");
+          sound.volume = 0.1;
+          sound.play();
+        }
+        
+        const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
+        const circle = L.circle(latlng, {
+          radius: RADIUS,
+          color: 'red',
+          fillColor: '#f03',
+          fillOpacity: 0.3
+        }).addTo(map);
 
-    markerCount++;
-    totalCost += COST_PER_MARKER;
-    
-    document.getElementById("cameraCount").innerText = markerCount;
-    document.getElementById("costCount").innerText = `${totalCost.toLocaleString()} CHF`;
-    
-    // Calculer la couverture avec notre fonction simplifiée
-    const coverage = calculateSimpleCoverage(markers);
-    
-    // Créer la popup finale
-    const popupOverlay = document.createElement('div');
-    popupOverlay.className = 'fullscreen-popup';
-    
-    popupOverlay.innerHTML = `
-      <div class="popup-content">
-        <h2 class="popup-title">🎬 Limite atteinte!</h2>
-        <p class="popup-text">Vous avez placé le maximum de 44 caméras et dépensé près de 700 000 CHF</p>
+        markers.push(marker);
+        circles.push(circle);
+
+        markerCount++;
+        totalCost += COST_PER_MARKER;
         
-        <div style="background: #eff6ff; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;">
-          <h3 style="font-weight: bold; font-size: 1.125rem; margin-bottom: 0.5rem;">Statistiques de couverture</h3>
-          <ul style="list-style: none; padding: 0; margin: 0;">
-            <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Nombre de caméras:</span> ${coverage.camerasPlaced}</li>
-            <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Superficie de la zone:</span> 75 000 m²</li>
-            <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Superficie couverte:</span> ${coverage.uniqueArea.toLocaleString()} m²</li>
-            <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Pourcentage de couverture:</span> ${coverage.coveragePercentage}%</li>
-            <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Chevauchement estimé:</span> ${coverage.overlapPercentage}%</li>
-          </ul>
-        </div>
+        document.getElementById("cameraCount").innerText = markerCount;
+        document.getElementById("costCount").innerText = `${totalCost.toLocaleString()} CHF`;
         
-        <div style="background: #fffbeb; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
-          <h3 style="font-weight: bold; font-size: 1.125rem; margin-bottom: 0.5rem;">Conclusion</h3>
-          <p style="margin-bottom: 0.5rem;">
-            Avec ${coverage.camerasPlaced} caméras placées, seulement ${coverage.coveragePercentage}% de la zone 
-            désignée serait sous surveillance, pour un coût total de ${coverage.totalCost.toLocaleString()} CHF.
-          </p>
-          <p>
-            Ceci ne tient pas compte des obstacles visuels comme les bâtiments, les arbres ou le mobilier urbain, 
-            qui réduiraient encore davantage la couverture effective.
-          </p>
-        </div>
+        // Calculer la couverture 
+        const coverage = calculateSimpleCoverage(markers);
         
-        <button class="popup-button" id="resetButton">Réinitialiser la carte</button>
-        <button class="popup-button" onclick="window.location.href='https://noncamerasvevey.ch/'">Visiter le site NON AUX CAMERAS</button>
-      </div>
-    `;
-    
-    document.body.appendChild(popupOverlay);
-    
-    // Ajouter un gestionnaire d'événements au bouton de réinitialisation
-    document.getElementById('resetButton').addEventListener('click', function() {
-      resetMap();
-      document.body.removeChild(popupOverlay);
-    });
-    
-    return;
-  }      
+        // Créer la popup finale
+        const popupOverlay = document.createElement('div');
+        popupOverlay.className = 'fullscreen-popup';
+        
+        popupOverlay.innerHTML = `
+          <div class="popup-content">
+            <h2 class="popup-title">🎬 Limite atteinte!</h2>
+            <p class="popup-text">Vous avez placé le maximum de ${coverage.camerasPlaced} caméras et dépensé près de ${coverage.totalCost.toLocaleString()} CHF</p>
+            
+            <div style="background: #eff6ff; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;">
+              <h3 style="font-weight: bold; font-size: 1.125rem; margin-bottom: 0.5rem;">Statistiques de couverture</h3>
+              <ul style="list-style: none; padding: 0; margin: 0;">
+                <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Nombre de caméras:</span> ${coverage.camerasPlaced}</li>
+                <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Superficie de la zone:</span> 75 000 m²</li>
+                <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Superficie couverte:</span> ${coverage.uniqueArea.toLocaleString()} m²</li>
+                <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Pourcentage de couverture:</span> ${coverage.coveragePercentage}%</li>
+                <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Chevauchement estimé:</span> ${coverage.overlapPercentage}%</li>
+              </ul>
+            </div>
+            
+            <div style="background: #fffbeb; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+              <h3 style="font-weight: bold; font-size: 1.125rem; margin-bottom: 0.5rem;">Conclusion</h3>
+              <p style="margin-bottom: 0.5rem;">
+                Avec ${coverage.camerasPlaced} caméras placées, seulement ${coverage.coveragePercentage}% de la zone 
+                désignée serait sous surveillance, pour un coût total de ${coverage.totalCost.toLocaleString()} CHF.
+              </p>
+              <p>
+                Ceci ne tient pas compte des obstacles visuels comme les bâtiments, les arbres ou le mobilier urbain, 
+                qui réduiraient encore davantage la couverture effective.
+              </p>
+            </div>
+            
+            <button class="popup-button" id="resetButton">Réinitialiser la carte</button>
+            <button class="popup-button" onclick="window.location.href='https://noncamerasvevey.ch/'">Visiter le site NON AUX CAMERAS</button>
+          </div>
+        `;
+        
+        document.body.appendChild(popupOverlay);
+        
+        // Ajouter un gestionnaire d'événements au bouton de réinitialisation
+        document.getElementById('resetButton').addEventListener('click', function() {
+          resetMap();
+          document.body.removeChild(popupOverlay);
+        });
+        
+        return;
+      }      
       const latlng = e.latlng;
       // 🔊 Joue le son de caisse si activé
       if (soundEnabled) {
@@ -609,34 +637,6 @@ map.on('click', function (e) {
     function copyShareLink() {
       navigator.clipboard.writeText(window.location.href);
       alert("Lien copié dans le presse-papiers !");
-    }
-
-    // Fonction de calcul de couverture simplifiée
-    function calculateSimpleCoverage(cameras) {
-      const CAMERA_AREA = 400; // m² par caméra
-      const ZONE_AREA = 75000; // Zone totale en m²
-      
-      const numCameras = cameras.length;
-      const totalArea = numCameras * CAMERA_AREA;
-      
-      // Facteur de chevauchement basé sur le nombre de caméras
-      let overlapFactor;
-      if (numCameras <= 5) overlapFactor = 0.05;
-      else if (numCameras <= 15) overlapFactor = 0.15;
-      else if (numCameras <= 30) overlapFactor = 0.25;
-      else overlapFactor = 0.35;
-      
-      // Surface unique couverte
-      const uniqueArea = Math.min(totalArea * (1 - overlapFactor), ZONE_AREA);
-      const coveragePercentage = (uniqueArea / ZONE_AREA) * 100;
-      
-      return {
-        uniqueArea: Math.round(uniqueArea),
-        overlapPercentage: Math.round(overlapFactor * 100),
-        coveragePercentage: coveragePercentage.toFixed(2),
-        camerasPlaced: numCameras,
-        totalCost: numCameras * 15370
-      };
     }
 
     // Swipes mobile
