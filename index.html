@@ -15,46 +15,15 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      display: flex;
       height: 100vh;
       overflow: hidden;
     }
 
-    #sidebar {
-      width: 320px;
-      background: #f8f8f8;
-      padding: 20px;
-      border-right: 1px solid #ccc;
-      box-sizing: border-box;
-      transition: transform 0.3s ease;
-      z-index: 1000;
-    }
-
-    #sidebar.hidden {
-      transform: translateX(-100%);
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-    }
-
     #map {
-      flex: 1;
+      width: 100%;
       height: 100%;
       position: relative;
       z-index: 0;
-    }
-
-    .sidebar-title {
-      font-size: 1.2em;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    .sidebar-text {
-      font-size: 0.95em;
-      margin-bottom: 20px;
-      line-height: 1.4;
     }
 
     .total-highlight {
@@ -64,56 +33,46 @@
       margin-bottom: 15px;
     }
 
-    button {
-      display: block;
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 10px;
-      font-size: 14px;
-      border: none;
+    .map-button {
+      z-index: 1000;
+      position: absolute;
+      background-color: white;
+      border: 1px solid #ccc;
       border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 14px;
       cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }
 
-    .btn-primary {
+    .map-button:hover {
+      background-color: #f4f4f4;
+    }
+
+    #reset-button {
+      bottom: 20px;
+      left: 20px;
       background-color: #007bff;
       color: white;
     }
 
-    .btn-primary:hover {
+    #reset-button:hover {
       background-color: #0056b3;
     }
 
-    .btn-secondary {
+    #share-button {
+      bottom: 20px;
+      left: 140px;
       background-color: #28a745;
       color: white;
     }
 
-    .btn-secondary:hover {
+    #share-button:hover {
       background-color: #218838;
-    }
-
-    .btn-sound {
-      background-color: #dc3545;
-      color: white;
-    }
-
-    .btn-sound:hover {
-      background-color: #c82333;
-    }
-
-    .btn-sound.muted {
-      background-color: #6c757d;
-    }
-
-    .btn-sound.muted:hover {
-      background-color: #5a6268;
     }
 
     .info-box {
       position: absolute;
-      top: 10px;
-      right: 10px;
       z-index: 1001;
       background-color: rgba(255, 255, 255, 0.9);
       padding: 10px 15px;
@@ -125,233 +84,189 @@
 
     #camera-count-box {
       top: 10px;
+      right: 10px;
+      display: none;
     }
 
     #total-cost-box {
       top: 60px;
+      right: 10px;
+      display: none;
     }
 
     /* Legend Styles */
     .legend {
-      padding: 10px 12px;
+      padding: 8px 10px;
       background: rgba(255, 255, 255, 0.9);
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
       border-radius: 8px;
-      line-height: 24px;
+      line-height: 20px;
       color: #333;
-      margin-bottom: 10px;
     }
     
-    /* Custom Popup Styles */
-    .custom-popup .leaflet-popup-content-wrapper {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 8px;
-      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
-    }
-    
-    .custom-popup .leaflet-popup-tip {
-      background: rgba(255, 255, 255, 0.95);
-    }
-    
-    .legend-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    
-    .icon {
+    .legend i {
       width: 16px;
       height: 16px;
-      display: inline-block;
-      margin-right: 8px;
-    }
-    
-    .icon-zone {
-       background-color: rgba(255, 0, 0, 0.05);
-      border: 1px solid rgba(255, 0, 0, 0.8);
-    }
-    
-    .icon-camera {
-      background-color: #f03;
-      border: 1px solid rgba(255, 0, 0, 0.8);
-      border-radius: 50%;
-      opacity: 0.3;
-    }
-
-    /* Styles pour la légende sur la carte */
-    .leaflet-control.legend {
-      padding: 12px 15px;
-      min-width: 160px;
-    }
-    
-    .leaflet-control.legend i {
-      width: 20px;
-      height: 20px;
       float: left;
-      margin-right: 10px;
+      margin-right: 8px;
       opacity: 0.8;
     }
     
-    .leaflet-control.legend div {
-      margin-bottom: 8px;
-      line-height: 20px;
-      clear: both;
+    .legend .icon-zone {
+      background-color: #ff7800;
+      border: 1px solid rgba(255, 120, 0, 0.8);
+    }
+    
+    .legend .icon-camera {
+      background-color: #f03;
+      border: 1px solid rgba(255, 0, 0, 0.8);
+      border-radius: 50%;
     }
 
-    /* Full Screen Popup styles */
-    .fullscreen-popup {
+    /* Splash Screen */
+    #splash-screen {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0, 0.8);
+      z-index: 2000;
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 2000;
     }
-    
-    .popup-content {
+
+    #splash-content {
       background-color: white;
-      padding: 30px;
       border-radius: 10px;
-      max-width: 80%;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+      width: 80%;
+      max-width: 500px;
+      padding: 30px;
       text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
-    
-    .popup-title {
+
+    #splash-content h2 {
       color: #c40000;
-      font-size: 1.8em;
+      margin-top: 0;
+    }
+
+    #splash-content p {
+      line-height: 1.5;
       margin-bottom: 20px;
     }
-    
-    .popup-text {
-      margin-bottom: 25px;
-      font-size: 1.1em;
-      line-height: 1.5;
-    }
-    
-    .popup-button {
+
+    #start-button {
       background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 4px;
       padding: 12px 25px;
+      font-size: 16px;
+      border-radius: 5px;
       cursor: pointer;
-      font-size: 1.1em;
-      transition: background-color 0.3s;
+      margin-top: 15px;
+      font-weight: bold;
     }
-    
-    .popup-button:hover {
+
+    #start-button:hover {
       background-color: #0056b3;
     }
-    
-    .popup-studies {
-      margin-top: 25px;
-      text-align: left;
+
+    .highlight {
+      font-weight: bold;
+      color: #c40000;
+    }
+
+    #study-message {
+      position: absolute;
+      bottom: 70px;
+      left: 20px;
+      background-color: rgba(255, 255, 255, 0.9);
       padding: 15px;
-      background-color: #f8f8f8;
-      border-radius: 5px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      max-width: 350px;
+      display: none;
+      z-index: 1500;
+    }
+
+    #study-message h3 {
+      margin-top: 0;
+      color: #c40000;
     }
 
     @media (max-width: 768px) {
-      #sidebar {
-        position: absolute;
-        height: 100%;
-        left: 0;
-        top: 0;
-        transform: translateX(0);
-      }
-
-      #sidebar.hidden {
-        transform: translateX(-100%);
-      }
-
       .legend {
-        max-width: 100%;
+        max-width: 160px;
         font-size: 12px;
       }
       
-      .popup-content {
-        max-width: 90%;
+      #splash-content {
+        width: 90%;
         padding: 20px;
+      }
+      
+      #share-button {
+        left: 20px;
+        bottom: 70px;
       }
     }
   </style>
 </head>
 <body>
-
-  <div id="sidebar">
-    <div class="sidebar-title">📹 Simule la vidéosurveillance à Vevey</div>
-    <div class="sidebar-text">
-      Toi aussi, installe <strong>44 caméras</strong> de vidéosurveillance à <strong>15'370 CHF</strong> pièce.
-      <br><br>
-      Les cercles couvrent <strong>400 m²</strong> – soit la limite haute de reconnaissance des visages selon l' «expert» payé <strong>96'000 CHF</strong> par la municipalité.
-      <br><br>
-      👆 Clique sur la carte pour ajouter une caméra.
-      <br><br>
-      📱 Sur mobile, glisse ce panneau vers la gauche pour le cacher, et vers la droite pour le rouvrir.
-      <br><br>
-      <strong>Si tu places 44 caméras, ton projet sera évalué!</strong>
+  <!-- Splash Screen -->
+  <div id="splash-screen">
+    <div id="splash-content">
+      <h2>📹 Simule la vidéosurveillance à Vevey</h2>
+      <p>Toi aussi, installe <span class="highlight">44 caméras</span> de vidéosurveillance à <span class="highlight">15'370 CHF</span> pièce.</p>
+      <p>Les cercles couvrent <span class="highlight">400 m²</span> – soit la limite haute de reconnaissance des visages selon l'«expert» payé <span class="highlight">96'000 CHF</span> par la municipalité.</p>
+      <p>👆 Clique sur la carte pour ajouter une caméra.</p>
+      <p><strong>Si tu places 44 caméras, ton projet sera évalué!</strong></p>
+      <button id="start-button">Commencer</button>
     </div>
-
-    <button class="btn-primary" onclick="resetMap()">Réinitialiser</button>
-    <button id="soundToggleBtn" class="btn-sound" onclick="toggleSound()">🔇 Couper le son</button>
-    <button class="btn-secondary" onclick="shareFacebook()">Partager sur Facebook</button>
-
-    <!-- Nouvelle légende dans le sidebar -->
-    <div class="legend" style="margin-top: 20px; border: 1px solid #ddd;">
-      <div class="sidebar-title">Légende</div>
-      <div class="legend-item">
-        <span class="icon icon-zone"></span> Zone de vidéosurveillance
-      </div>
-      <div class="legend-item">
-        <span class="icon icon-camera"></span> Couverture caméra (400 m²)
-      </div>
-    </div>
-
   </div>
 
   <div id="map"></div>
 
+  <!-- Buttons directly on map -->
+  <button id="reset-button" class="map-button">Réinitialiser</button>
+  <button id="share-button" class="map-button">Partager sur Facebook</button>
+
   <!-- Encadrés fixes -->
-  <div id="camera-count-box" class="info-box" style="display:none;"> 🎬 Caméras : <span id="cameraCount">0</span></div>
-  <div id="total-cost-box" class="info-box" style="display:none;">💰 Total : <span id="costCount">0 CHF</span></div>
+  <div id="camera-count-box" class="info-box">📦 Caméras : <span id="cameraCount">0</span></div>
+  <div id="total-cost-box" class="info-box">💰 Total : <span id="costCount">0 CHF</span></div>
+
+  <!-- Message for completed scenario -->
+  <div id="study-message">
+    <h3>Études scientifiques :</h3>
+    <p>L'étude <em>Piza et al. (2019)</em> a montré que 80 % des infractions liées au trafic de drogue se maintenaient dans les zones vidéosurveillées.</p>
+    <p>L'étude de l'<em>Université de Neuchâtel à Genève (2014–2016)</em> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.</p>
+  </div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <!-- Add Turf.js for geofencing point-in-polygon check -->
-  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
   <script>
+    // Close splash screen and start the simulation
+    document.getElementById('start-button').addEventListener('click', function() {
+      document.getElementById('splash-screen').style.display = 'none';
+    });
+
     const map = L.map('map').setView([46.46317, 6.84255], 17.6);
-    let soundEnabled = true;
 
     // Fond OSM en niveau de gris (grayscale)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap, CartoDB'
     }).addTo(map);
 
-    // Garder la légende existante sur la carte
+    // Ajout d'une légende
     const legend = L.control({position: 'bottomright'});
     
     legend.onAdd = function(map) {
       const div = L.DomUtil.create('div', 'legend');
       
       div.innerHTML = `
-        <div><i class="icon-zone" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i> Zone de vidéosurveillance</div>
-        <div><i class="icon-camera" style="
-      width: 20px; 
-      height: 20px; 
-      display: inline-block; 
-      margin-right: 8px; 
-      background-color: #f03; 
-      border: 1px solid red; 
-      border-radius: 50%; 
-      opacity: 0.3;"></i> Couverture caméra (400 m²)
-  </div>
+        <div><i class="icon-zone"></i> Zone de vidéosurveillance</div>
+        <div><i class="icon-camera"></i> Couverture caméra (400 m²)</div>
       `;
       
       return div;
@@ -359,20 +274,16 @@
     
     // Définir un style pour la zone de caméras
     const zoneStyle = {
-      color: "#ff0000",
+      color: "#ff7800",
       weight: 2,
-      opacity: 0.9,
-      fillOpacity: 0.05
+      opacity: 0.65,
+      fillOpacity: 0.4
     };
-
-    let cameraZoneData; // Store the GeoJSON data globally
 
     // Charger le GeoJSON
     fetch('zone_cameras_vevey.geojson')
       .then(response => response.json())
       .then(data => {
-        cameraZoneData = data; // Store for later use in click validation
-        
         const cameraZone = L.geoJSON(data, {
           style: zoneStyle,
           onEachFeature: function(feature, layer) {
@@ -383,7 +294,7 @@
         // Ajuster la vue pour englober la zone
         map.fitBounds(cameraZone.getBounds());
         
-        // Ajouter la légende à la carte
+        // Ajouter la légende une fois que la zone est chargée
         legend.addTo(map);
       })
       .catch(error => {
@@ -474,17 +385,9 @@
         
         return;
       }
-      
-      // If we're here, the point is valid - continue with marker placement
+
       const latlng = e.latlng;
-      
-      // Play cash sound if enabled
-      if (soundEnabled) {
-        const sound = document.getElementById("cashSound");
-        sound.volume = 0.1;
-        sound.play();
-      }
-      
+
       const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
       const circle = L.circle(latlng, {
         radius: RADIUS,
@@ -503,10 +406,15 @@
       document.getElementById("costCount").innerText = `${totalCost.toLocaleString()} CHF`;
       document.getElementById("camera-count-box").style.display = "block";
       document.getElementById("total-cost-box").style.display = "block";
+      
+      // Show scientific studies when 44 cameras are placed
+      if (markerCount === 44) {
+        document.getElementById('study-message').style.display = 'block';
+      }
     });
 
-    // Your existing functions: resetMap, toggleSound, etc.
-    // ...
+    document.getElementById('reset-button').addEventListener('click', resetMap);
+    document.getElementById('share-button').addEventListener('click', shareFacebook);
 
     function resetMap() {
       markers.forEach(m => map.removeLayer(m));
@@ -520,28 +428,7 @@
       document.getElementById("costCount").innerText = "0 CHF";
       document.getElementById("camera-count-box").style.display = "none";
       document.getElementById("total-cost-box").style.display = "none";
-    }
-    
-    function resetMapAndClosePopup() {
-      resetMap();
-      // Remove the fullscreen popup if it exists
-      const popup = document.querySelector('.fullscreen-popup');
-      if (popup) {
-        document.body.removeChild(popup);
-      }
-    }
-
-    function toggleSound() {
-      soundEnabled = !soundEnabled;
-      const soundBtn = document.getElementById("soundToggleBtn");
-      
-      if (soundEnabled) {
-        soundBtn.textContent = "🔇 Couper le son";
-        soundBtn.classList.remove("muted");
-      } else {
-        soundBtn.textContent = "🔊 Activer le son";
-        soundBtn.classList.add("muted");
-      }
+      document.getElementById("study-message").style.display = "none";
     }
 
     function shareFacebook() {
@@ -549,33 +436,6 @@
       const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
       window.open(fbUrl, '_blank');
     }
-
-    function copyShareLink() {
-      navigator.clipboard.writeText(window.location.href);
-      alert("Lien copié dans le presse-papiers !");
-    }
-
-    // Swipes mobile
-    let touchStartX = null;
-    document.addEventListener("touchstart", e => {
-      touchStartX = e.touches[0].clientX;
-    });
-
-    document.addEventListener("touchend", e => {
-      if (touchStartX !== null) {
-        let deltaX = e.changedTouches[0].clientX - touchStartX;
-        const sidebar = document.getElementById("sidebar");
-
-        if (deltaX < -80) {
-          sidebar.classList.add("hidden"); // swipe gauche
-        } else if (deltaX > 80) {
-          sidebar.classList.remove("hidden"); // swipe droite
-        }
-
-        touchStartX = null;
-      }
-    });
   </script>
-  <audio id="cashSound" src="https://marcbertholet.github.io/map/cash-register-kaching-sound-effect-125042.mp3" preload="auto"></audio>
 </body>
 </html>
