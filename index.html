@@ -172,7 +172,7 @@
     }
     
     .icon-camera {
-      background-color: #f03;
+      background-color: rgba(255, 0, 0, 0.3);
       border: 1px solid rgba(255, 0, 0, 0.8);
       border-radius: 50%;
       opacity: 0.3;
@@ -338,18 +338,9 @@
     legend.onAdd = function(map) {
       const div = L.DomUtil.create('div', 'legend');
       
-      div.innerHTML = `
-        <div><i class="icon-zone" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i> Zone de vidéosurveillance</div>
-        <div><i class="icon-camera" style="
-      width: 20px; 
-      height: 20px; 
-      display: inline-block; 
-      margin-right: 8px; 
-      background-color: #f03; 
-      border: 1px solid red; 
-      border-radius: 50%; 
-      opacity: 0.3;"></i> Couverture caméra (400 m²)
-  </div>
+     div.innerHTML = `
+        <div><i class="icon-zone" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px; background-color: rgba(255, 0, 0, 0.05); border: 2px solid rgba(255, 0, 0, 0.8);"></i> Zone de vidéosurveillance</div>
+        <div><i class="icon-camera" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px; background-color: rgba(255, 0, 0, 0.3); border: 2px solid rgba(255, 0, 0, 1); border-radius: 50%;"></i> Couverture caméra (400 m²)</div>
       `;
       
       return div;
