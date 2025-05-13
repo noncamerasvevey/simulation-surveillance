@@ -15,46 +15,16 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      display: flex;
       height: 100vh;
       overflow: hidden;
-    }
-
-    #sidebar {
-      width: 320px;
-      background: #f8f8f8;
-      padding: 20px;
-      border-right: 1px solid #ccc;
-      box-sizing: border-box;
-      transition: transform 0.3s ease;
-      z-index: 1000;
-    }
-
-    #sidebar.hidden {
-      transform: translateX(-100%);
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
+      position: relative;
     }
 
     #map {
-      flex: 1;
+      width: 100%;
       height: 100%;
       position: relative;
       z-index: 0;
-    }
-
-    .sidebar-title {
-      font-size: 1.2em;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    .sidebar-text {
-      font-size: 0.95em;
-      margin-bottom: 20px;
-      line-height: 1.4;
     }
 
     .total-highlight {
@@ -64,56 +34,64 @@
       margin-bottom: 15px;
     }
 
-    button {
-      display: block;
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 10px;
-      font-size: 14px;
-      border: none;
+    .map-button {
+      z-index: 1000;
+      position: absolute;
+      background-color: white;
+      border: 1px solid #ccc;
       border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 14px;
       cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }
 
-    .btn-primary {
+    .map-button:hover {
+      background-color: #f4f4f4;
+    }
+
+    #reset-button {
+      bottom: 20px;
+      left: 20px;
       background-color: #007bff;
       color: white;
+      z-index: 1200;
     }
 
-    .btn-primary:hover {
+    #reset-button:hover {
       background-color: #0056b3;
     }
 
-    .btn-secondary {
-      background-color: #28a745;
-      color: white;
-    }
-
-    .btn-secondary:hover {
-      background-color: #218838;
-    }
-
-    .btn-sound {
+    #sound-button {
+      bottom: 20px;
+      left: 140px;
       background-color: #dc3545;
       color: white;
+      z-index: 1200;
     }
 
-    .btn-sound:hover {
-      background-color: #c82333;
-    }
-
-    .btn-sound.muted {
+    #sound-button.muted {
       background-color: #6c757d;
     }
 
-    .btn-sound.muted:hover {
+    #sound-button.muted:hover {
       background-color: #5a6268;
+    }
+
+    #share-button {
+      bottom: 20px;
+      left: 300px;
+      background-color: #28a745;
+      color: white;
+      z-index: 1200;
+    }
+
+    #share-button:hover {
+      background-color: #218838;
     }
 
     .info-box {
       position: absolute;
-      top: 10px;
-      right: 10px;
       z-index: 1001;
       background-color: rgba(255, 255, 255, 0.9);
       padding: 10px 15px;
@@ -125,10 +103,34 @@
 
     #camera-count-box {
       top: 10px;
+      right: 10px;
+      display: none;
     }
 
     #total-cost-box {
       top: 60px;
+      right: 10px;
+      display: none;
+    }
+
+    #info-panel {
+      top: 5px;
+      left: 5px;
+      max-width: 320px;
+      font-size: 0.95em;
+      line-height: 1.4;
+      z-index: 1001;
+      background-color: rgba(255, 255, 255);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      position: absolute;
+    }
+
+    .sidebar-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
 
     /* Legend Styles */
@@ -167,7 +169,7 @@
     }
     
     .icon-zone {
-       background-color: rgba(255, 0, 0, 0.05);
+      background-color: rgba(255, 0, 0, 0.05);
       border: 1px solid rgba(255, 0, 0, 0.8);
     }
     
@@ -198,6 +200,12 @@
       clear: both;
     }
 
+    /* Error popup style */
+    .error-popup .leaflet-popup-content-wrapper {
+      background-color: #ffebee;
+      border-left: 4px solid #f44336;
+    }
+    
     /* Full Screen Popup styles */
     .fullscreen-popup {
       position: fixed;
@@ -221,6 +229,7 @@
       overflow-y: auto;
       box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
       text-align: center;
+      position: relative;
     }
     
     .popup-title {
@@ -244,12 +253,13 @@
       cursor: pointer;
       font-size: 1.1em;
       transition: background-color 0.3s;
+      margin: 10px;
     }
     
     .popup-button:hover {
       background-color: #0056b3;
     }
-    
+
     .popup-studies {
       margin-top: 25px;
       text-align: left;
@@ -257,77 +267,119 @@
       background-color: #f8f8f8;
       border-radius: 5px;
     }
-
+    
+    /* Splash Screen */
+    #splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    /* Close button for splash and popups */
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #666;
+      cursor: pointer;
+      padding: 5px;
+      line-height: 1;
+      z-index: 10;
+    }
+    
+    .close-button:hover {
+      color: #333;
+    }
+    
+    #splash-content {
+      background-color: white;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 500px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    
+    .highlight {
+      font-weight: bold;
+      color: #c40000;
+    }
+    
     @media (max-width: 768px) {
-      #sidebar {
-        position: absolute;
-        height: 100%;
-        left: 0;
-        top: 0;
-        transform: translateX(0);
-      }
-
-      #sidebar.hidden {
-        transform: translateX(-100%);
-      }
-
-      .legend {
-        max-width: 100%;
+      .map-button {
+        padding: 8px 10px;
         font-size: 12px;
       }
       
-      .popup-content {
-        max-width: 90%;
+      #share-button {
+        left: 20px;
+        bottom: 120px;
+      }
+      
+      #sound-button {
+        left: 20px;
+        bottom: 70px;
+      }
+      
+      #splash-content {
+        width: 90%;
         padding: 20px;
       }
     }
   </style>
 </head>
 <body>
-
-  <div id="sidebar">
-    <div class="sidebar-title">📹 Simule la vidéosurveillance à Vevey</div>
-    <div class="sidebar-text">
-      Toi aussi, installe <strong>44 caméras</strong> de vidéosurveillance à <strong>15'370 CHF</strong> pièce.
-      <br><br>
-      Les cercles couvrent <strong>400 m²</strong> – soit la limite haute de reconnaissance des visages selon l' «expert» payé <strong>96'000 CHF</strong> par la municipalité.
-      <br><br>
-      👆 Clique sur la carte pour ajouter une caméra.
-      <br><br>
-      📱 Sur mobile, glisse ce panneau vers la gauche pour le cacher, et vers la droite pour le rouvrir.
-      <br><br>
-      <strong>Si tu places 44 caméras, ton projet sera évalué!</strong>
+  <!-- Splash Screen -->
+  <div id="splash-screen">
+    <div id="splash-content">
+      <button id="close-splash" class="close-button" aria-label="Fermer">×</button>
+      <h2>📹 Simule la vidéosurveillance à Vevey</h2>
+      <p>Toi aussi, installe <span class="highlight">44 caméras</span> de vidéosurveillance à <span class="highlight">15'370 CHF</span> pièce.</p>
+      <p>Les cercles couvrent <span class="highlight">400 m²</span> – soit la limite haute de reconnaissance des visages selon l'«expert» payé <span class="highlight">96'000 CHF</span> par la municipalité.</p>
+      <p>👆 Clique sur la carte pour ajouter une caméra.</p>
+      <p><strong>Si tu places 44 caméras, ton projet sera évalué!</strong></p>
+      <button id="start-button" class="popup-button">Commencer</button>
     </div>
-
-    <button class="btn-primary" onclick="resetMap()">Réinitialiser</button>
-    <button id="soundToggleBtn" class="btn-sound" onclick="toggleSound()">🔇 Couper le son</button>
-    <button class="btn-secondary" onclick="shareFacebook()">Partager sur Facebook</button>
-
-    <!-- Nouvelle légende dans le sidebar -->
-    <div class="legend" style="margin-top: 20px; border: 1px solid #ddd;">
-      <div class="sidebar-title">Légende</div>
-      <div class="legend-item">
-        <span class="icon icon-zone"></span> Zone de vidéosurveillance
-      </div>
-      <div class="legend-item">
-        <span class="icon icon-camera"></span> Couverture caméra (400 m²)
-      </div>
-    </div>
-
   </div>
 
   <div id="map"></div>
+    
+  <!-- Buttons directly on map -->
+  <button id="reset-button" class="map-button">Réinitialiser</button>
+  <button id="sound-button" class="map-button">🔇 Couper le son</button>
+  <button id="share-button" class="map-button">Partager sur Facebook</button>
 
   <!-- Encadrés fixes -->
-  <div id="camera-count-box" class="info-box" style="display:none;"> 🎬 Caméras : <span id="cameraCount">0</span></div>
-  <div id="total-cost-box" class="info-box" style="display:none;">💰 Total : <span id="costCount">0 CHF</span></div>
+  <div id="camera-count-box" class="info-box">🎬 Caméras : <span id="cameraCount">0</span></div>
+  <div id="total-cost-box" class="info-box">💰 Total : <span id="costCount">0 CHF</span></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <!-- Add Turf.js for geofencing point-in-polygon check -->
   <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
   <script>
     const map = L.map('map').setView([46.46317, 6.84255], 17.6);
     let soundEnabled = true;
+    let cameraZoneData = null;
+
+    // Close splash screen via various methods
+    document.getElementById('start-button').addEventListener('click', function() {
+      document.getElementById('splash-screen').style.display = 'none';
+    });
+    
+    document.getElementById('close-splash').addEventListener('click', function() {
+      document.getElementById('splash-screen').style.display = 'none';
+    });
 
     // Fond OSM en niveau de gris (grayscale)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -341,17 +393,8 @@
       const div = L.DomUtil.create('div', 'legend');
       
       div.innerHTML = `
-        <div><i class="icon-zone" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i> Zone de vidéosurveillance</div>
-        <div><i class="icon-camera" style="
-      width: 20px; 
-      height: 20px; 
-      display: inline-block; 
-      margin-right: 8px; 
-      background-color: #f03; 
-      border: 1px solid red; 
-      border-radius: 50%; 
-      opacity: 0.3;"></i> Couverture caméra (400 m²)
-  </div>
+        <div><i class="icon-zone" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px; background-color: rgba(255, 0, 0, 0.05); border: 1px solid rgba(255, 0, 0, 0.8);"></i> Zone de vidéosurveillance</div>
+        <div><i class="icon-camera" style="width: 20px; height: 20px; display: inline-block; margin-right: 8px; background-color: #f03; border: 1px solid red; border-radius: 50%; opacity: 0.3;"></i> Couverture caméra (400 m²)</div>
       `;
       
       return div;
@@ -365,13 +408,12 @@
       fillOpacity: 0.05
     };
 
-    let cameraZoneData; // Store the GeoJSON data globally
-
     // Charger le GeoJSON
     fetch('zone_cameras_vevey.geojson')
       .then(response => response.json())
       .then(data => {
-        cameraZoneData = data; // Store for later use in click validation
+        // Store the data globally
+        cameraZoneData = data;
         
         const cameraZone = L.geoJSON(data, {
           style: zoneStyle,
@@ -406,18 +448,15 @@
       popupAnchor: [0, -16]
     });
 
-    // Error sound for when user clicks outside allowed zone
-    const errorSound = new Audio('https://freesound.org/data/previews/220/220914_4096255-lq.mp3');
-    errorSound.volume = 0.1;
-
     map.on('click', function (e) {
-      if (markerCount >= MAX_MARKERS) {
-        // Create fullscreen popup (your existing code)
+      if (markerCount >= MAX_MARKERS-1) {
+        // Create fullscreen popup
         const popupOverlay = document.createElement('div');
         popupOverlay.className = 'fullscreen-popup';
         
         popupOverlay.innerHTML = `
           <div class="popup-content">
+            <button class="close-button" id="close-final-popup" aria-label="Fermer">×</button>
             <h2 class="popup-title">🎬 Limite atteinte!</h2>
             <p class="popup-text">Vous avez placé le maximum de 44 caméras et dépensé près de 700 000 CHF</p>
             <button class="popup-button" id="resetButton">Réinitialiser la carte</button>
@@ -432,9 +471,13 @@
         
         document.body.appendChild(popupOverlay);
         
-        // Add event listener to reset button
+        // Add event listeners for closing/resetting
         document.getElementById('resetButton').addEventListener('click', function() {
           resetMap();
+          document.body.removeChild(popupOverlay);
+        });
+        
+        document.getElementById('close-final-popup').addEventListener('click', function() {
           document.body.removeChild(popupOverlay);
         });
         
@@ -442,47 +485,42 @@
       }
       
       // Check if the clicked point is within the allowed zone
-      const point = turf.point([e.latlng.lng, e.latlng.lat]);
-      let isInZone = false;
-      
-      // Loop through all features in the GeoJSON
       if (cameraZoneData && cameraZoneData.features) {
+        const point = turf.point([e.latlng.lng, e.latlng.lat]);
+        let isInZone = false;
+        
+        // Loop through all features in the GeoJSON
         for (const feature of cameraZoneData.features) {
           if (turf.booleanPointInPolygon(point, feature.geometry)) {
             isInZone = true;
             break;
           }
         }
-      }
-      
-      if (!isInZone) {
-        // Point is outside the allowed zone - show error message
-        const errorPopup = L.popup({ className: 'error-popup' })
-          .setLatLng(e.latlng)
-          .setContent('<div style="font-weight:bold;">🚫 Placement impossible. Les caméras doivent être dans la zone délimitée.</div>')
-          .openOn(map);
         
-        // Play error sound instead of cash sound if enabled
-        if (soundEnabled) {
-          errorSound.play();
+        if (!isInZone) {
+          // Point is outside the allowed zone - show error message
+          const errorPopup = L.popup({ className: 'error-popup' })
+            .setLatLng(e.latlng)
+            .setContent('<div style="font-weight:bold;">🚫 Placement impossible. Les caméras doivent être dans la zone délimitée.</div>')
+            .openOn(map);
+          
+          // Auto-close the error popup after 2 seconds
+          setTimeout(() => {
+            map.closePopup(errorPopup);
+          }, 2000);
+          
+          return;
         }
-        
-        // Auto-close the error popup after 2 seconds
-        setTimeout(() => {
-          map.closePopup(errorPopup);
-        }, 2000);
-        
-        return;
       }
       
-      // If we're here, the point is valid - continue with marker placement
       const latlng = e.latlng;
-      
-      // Play cash sound if enabled
+      // 🔊 Joue le son de caisse si activé
       if (soundEnabled) {
         const sound = document.getElementById("cashSound");
-        sound.volume = 0.1;
-        sound.play();
+        if (sound) {
+          sound.volume = 0.1;
+          sound.play();
+        }
       }
       
       const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
@@ -505,8 +543,9 @@
       document.getElementById("total-cost-box").style.display = "block";
     });
 
-    // Your existing functions: resetMap, toggleSound, etc.
-    // ...
+    document.getElementById('reset-button').addEventListener('click', resetMap);
+    document.getElementById('share-button').addEventListener('click', shareFacebook);
+    document.getElementById('sound-button').addEventListener('click', toggleSound);
 
     function resetMap() {
       markers.forEach(m => map.removeLayer(m));
@@ -521,19 +560,10 @@
       document.getElementById("camera-count-box").style.display = "none";
       document.getElementById("total-cost-box").style.display = "none";
     }
-    
-    function resetMapAndClosePopup() {
-      resetMap();
-      // Remove the fullscreen popup if it exists
-      const popup = document.querySelector('.fullscreen-popup');
-      if (popup) {
-        document.body.removeChild(popup);
-      }
-    }
 
     function toggleSound() {
       soundEnabled = !soundEnabled;
-      const soundBtn = document.getElementById("soundToggleBtn");
+      const soundBtn = document.getElementById("sound-button");
       
       if (soundEnabled) {
         soundBtn.textContent = "🔇 Couper le son";
@@ -549,32 +579,6 @@
       const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
       window.open(fbUrl, '_blank');
     }
-
-    function copyShareLink() {
-      navigator.clipboard.writeText(window.location.href);
-      alert("Lien copié dans le presse-papiers !");
-    }
-
-    // Swipes mobile
-    let touchStartX = null;
-    document.addEventListener("touchstart", e => {
-      touchStartX = e.touches[0].clientX;
-    });
-
-    document.addEventListener("touchend", e => {
-      if (touchStartX !== null) {
-        let deltaX = e.changedTouches[0].clientX - touchStartX;
-        const sidebar = document.getElementById("sidebar");
-
-        if (deltaX < -80) {
-          sidebar.classList.add("hidden"); // swipe gauche
-        } else if (deltaX > 80) {
-          sidebar.classList.remove("hidden"); // swipe droite
-        }
-
-        touchStartX = null;
-      }
-    });
   </script>
   <audio id="cashSound" src="https://marcbertholet.github.io/map/cash-register-kaching-sound-effect-125042.mp3" preload="auto"></audio>
 </body>
