@@ -11,6 +11,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Simulez la vidéosurveillance à Vevey</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -317,6 +318,19 @@
       color: #c40000;
     }
     
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+#coverage-calculator-container {
+  margin: 20px 0;
+  width: 100%;
+}
+
+#coverage-calculator-container.hidden {
+  display: none;
+}
     @media (max-width: 768px) {
       .map-button {
         padding: 8px 10px;
@@ -448,71 +462,96 @@
       popupAnchor: [0, -16]
     });
 
+    // Fonction de calcul de couverture simplifiée
+    function calculateSimpleCoverage(cameras) {
+      const CAMERA_AREA = 400; // m² par caméra
+      const ZONE_AREA = 75000; // Zone totale en m²
+      
+      const numCameras = cameras.length;
+      const totalArea = numCameras * CAMERA_AREA;
+      
+      // Facteur de chevauchement basé sur le nombre de caméras
+      let overlapFactor;
+      if (numCameras <= 5) overlapFactor = 0.05;
+      else if (numCameras <= 15) overlapFactor = 0.15;
+      else if (numCameras <= 30) overlapFactor = 0.25;
+      else overlapFactor = 0.35;
+      
+      // Surface unique couverte
+      const uniqueArea = Math.min(totalArea * (1 - overlapFactor), ZONE_AREA);
+      const coveragePercentage = (uniqueArea / ZONE_AREA) * 100;
+      
+      return {
+        uniqueArea: Math.round(uniqueArea),
+        overlapPercentage: Math.round(overlapFactor * 100),
+        coveragePercentage: coveragePercentage.toFixed(2),
+        camerasPlaced: numCameras,
+        totalCost: numCameras * COST_PER_MARKER
+      };
+    }
+
     map.on('click', function (e) {
       if (markerCount >= MAX_MARKERS-1) {
-        // Create fullscreen popup
+        // Ajouter la dernière caméra
+        const latlng = e.latlng;
+        if (soundEnabled) {
+          const sound = document.getElementById("cashSound");
+          sound.volume = 0.1;
+          sound.play();
+        }
+        
+        const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
+        const circle = L.circle(latlng, {
+          radius: RADIUS,
+          color: 'red',
+          fillColor: '#f03',
+          fillOpacity: 0.3
+        }).addTo(map);
+
+        markers.push(marker);
+        circles.push(circle);
+
+        markerCount++;
+        totalCost += COST_PER_MARKER;
+        
+        document.getElementById("cameraCount").innerText = markerCount;
+        document.getElementById("costCount").innerText = `${totalCost.toLocaleString()} CHF`;
+        
+        // Calculer la couverture 
+        const coverage = calculateSimpleCoverage(markers);
+        
+        // Créer la popup finale
         const popupOverlay = document.createElement('div');
         popupOverlay.className = 'fullscreen-popup';
         
         popupOverlay.innerHTML = `
           <div class="popup-content">
-            <button class="close-button" id="close-final-popup" aria-label="Fermer">×</button>
             <h2 class="popup-title">🎬 Limite atteinte!</h2>
-            <p class="popup-text">Vous avez placé le maximum de 44 caméras et dépensé près de 700 000 CHF</p>
-            <button class="popup-button" id="resetButton">Réinitialiser la carte</button>
-            <button class="popup-button" onclick="window.location.href='https://noncamerasvevey.ch/'">Visiter le site NON AUX CAMERAS</button>
+            <p class="popup-text">Vous avez placé le maximum de ${coverage.camerasPlaced} caméras et dépensé près de ${coverage.totalCost.toLocaleString()} CHF</p>
+            <p style="margin-bottom: 0.5rem;">
+                Avec ${coverage.camerasPlaced} caméras placées, seulement ${coverage.coveragePercentage}% de la zone 
+                désignée serait sous surveillance, pour un coût total de ${coverage.totalCost.toLocaleString()} CHF.
+            </p>
             <div class="popup-studies">
               <strong>Évaluation de votre projet:</strong><br><br>
               L'étude de <a href='https://academicworks.cuny.edu/cgi/viewcontent.cgi?article=1275&context=jj_pubs' target="_blank"><em>Piza et al. (2019)</em></a> a montré que 80% des infractions liées au trafic de drogue se maintenaient dans les zones vidéosurveillées.<br><br>
               L'étude de <a href='https://gh.copernicus.org/articles/73/63/2018/' target="_blank"><em>l'Université de Neuchâtel à Genève (2014–2016)</em></a> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.
             </div>
+            <button class="popup-button" id="resetButton">Réinitialiser la carte</button>
+            <button class="popup-button" onclick="window.location.href='https://noncamerasvevey.ch/'">Visiter le site NON AUX CAMERAS</button>
           </div>
         `;
         
         document.body.appendChild(popupOverlay);
         
-        // Add event listeners for closing/resetting
+        // Ajouter un gestionnaire d'événements au bouton de réinitialisation
         document.getElementById('resetButton').addEventListener('click', function() {
           resetMap();
           document.body.removeChild(popupOverlay);
         });
         
-        document.getElementById('close-final-popup').addEventListener('click', function() {
-          document.body.removeChild(popupOverlay);
-        });
-        
         return;
-      }
-      
-      // Check if the clicked point is within the allowed zone
-      if (cameraZoneData && cameraZoneData.features) {
-        const point = turf.point([e.latlng.lng, e.latlng.lat]);
-        let isInZone = false;
-        
-        // Loop through all features in the GeoJSON
-        for (const feature of cameraZoneData.features) {
-          if (turf.booleanPointInPolygon(point, feature.geometry)) {
-            isInZone = true;
-            break;
-          }
-        }
-        
-        if (!isInZone) {
-          // Point is outside the allowed zone - show error message
-          const errorPopup = L.popup({ className: 'error-popup' })
-            .setLatLng(e.latlng)
-            .setContent('<div style="font-weight:bold;">🚫 Placement impossible. Les caméras doivent être dans la zone délimitée.</div>')
-            .openOn(map);
-          
-          // Auto-close the error popup after 2 seconds
-          setTimeout(() => {
-            map.closePopup(errorPopup);
-          }, 2000);
-          
-          return;
-        }
-      }
-      
+      }      
       const latlng = e.latlng;
       // 🔊 Joue le son de caisse si activé
       if (soundEnabled) {
@@ -579,6 +618,32 @@
       const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
       window.open(fbUrl, '_blank');
     }
+
+    function copyShareLink() {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Lien copié dans le presse-papiers !");
+    }
+
+    // Swipes mobile
+    let touchStartX = null;
+    document.addEventListener("touchstart", e => {
+      touchStartX = e.touches[0].clientX;
+    });
+
+    document.addEventListener("touchend", e => {
+      if (touchStartX !== null) {
+        let deltaX = e.changedTouches[0].clientX - touchStartX;
+        const sidebar = document.getElementById("sidebar");
+
+        if (deltaX < -80) {
+          sidebar.classList.add("hidden"); // swipe gauche
+        } else if (deltaX > 80) {
+          sidebar.classList.remove("hidden"); // swipe droite
+        }
+
+        touchStartX = null;
+      }
+    });
   </script>
   <audio id="cashSound" src="https://marcbertholet.github.io/map/cash-register-kaching-sound-effect-125042.mp3" preload="auto"></audio>
 </body>
