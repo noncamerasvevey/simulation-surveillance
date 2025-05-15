@@ -528,30 +528,15 @@
           <div class="popup-content">
             <h2 class="popup-title">🎬 Limite atteinte!</h2>
             <p class="popup-text">Vous avez placé le maximum de ${coverage.camerasPlaced} caméras et dépensé près de ${coverage.totalCost.toLocaleString()} CHF</p>
-            
-            <div style="background: #eff6ff; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;">
-              <h3 style="font-weight: bold; font-size: 1.125rem; margin-bottom: 0.5rem;">Statistiques de couverture</h3>
-              <ul style="list-style: none; padding: 0; margin: 0;">
-                <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Nombre de caméras:</span> ${coverage.camerasPlaced}</li>
-                <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Superficie de la zone:</span> 75 000 m²</li>
-                <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Superficie couverte:</span> ${coverage.uniqueArea.toLocaleString()} m²</li>
-                <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Pourcentage de couverture:</span> ${coverage.coveragePercentage}%</li>
-                <li style="margin-bottom: 0.5rem;"><span style="font-weight: 600;">Chevauchement estimé:</span> ${coverage.overlapPercentage}%</li>
-              </ul>
-            </div>
-            
-            <div style="background: #fffbeb; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
-              <h3 style="font-weight: bold; font-size: 1.125rem; margin-bottom: 0.5rem;">Conclusion</h3>
-              <p style="margin-bottom: 0.5rem;">
+            <p style="margin-bottom: 0.5rem;">
                 Avec ${coverage.camerasPlaced} caméras placées, seulement ${coverage.coveragePercentage}% de la zone 
                 désignée serait sous surveillance, pour un coût total de ${coverage.totalCost.toLocaleString()} CHF.
-              </p>
-              <p>
-                Ceci ne tient pas compte des obstacles visuels comme les bâtiments, les arbres ou le mobilier urbain, 
-                qui réduiraient encore davantage la couverture effective.
-              </p>
+            </p>
+            <div class="popup-studies">
+              <strong>Évaluation de votre projet:</strong><br><br>
+              L'étude de <a href='https://academicworks.cuny.edu/cgi/viewcontent.cgi?article=1275&context=jj_pubs' target="_blank"><em>Piza et al. (2019)</em></a> a montré que 80% des infractions liées au trafic de drogue se maintenaient dans les zones vidéosurveillées.<br><br>
+              L'étude de <a href='https://gh.copernicus.org/articles/73/63/2018/' target="_blank"><em>l'Université de Neuchâtel à Genève (2014–2016)</em></a> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.
             </div>
-            
             <button class="popup-button" id="resetButton">Réinitialiser la carte</button>
             <button class="popup-button" onclick="window.location.href='https://noncamerasvevey.ch/'">Visiter le site NON AUX CAMERAS</button>
           </div>
