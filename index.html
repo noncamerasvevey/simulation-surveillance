@@ -352,6 +352,60 @@
         padding: 20px;
       }
     }
+
+      .collapsible-section {
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .collapsible-button {
+    background-color: #f1f1f1;
+    color: #444;
+    cursor: pointer;
+    padding: 12px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  
+  .collapsible-button:hover {
+    background-color: #ddd;
+  }
+  
+  .collapsible-button:after {
+    content: '\002B';
+    color: #777;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+  }
+  
+  .collapsible-button.active:after {
+    content: "\2212";
+  }
+  
+  .collapsible-content {
+    padding: 0 18px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    background-color: #f8f8f8;
+    border-radius: 0 0 4px 4px;
+  }
+  
+  .collapsible-content p {
+    margin-top: 10px;
+  }
+  
+  .collapsible-content ol {
+    margin-top: 5px;
+    padding-left: 20px;
+  }
   </style>
 </head>
 <body>
@@ -535,15 +589,19 @@
               <strong>Évaluation de votre projet:</strong><br><br>
               L'étude de <a href='https://academicworks.cuny.edu/cgi/viewcontent.cgi?article=1275&context=jj_pubs' target="_blank"><em>Piza et al. (2019)</em></a> a montré que 80% des infractions liées au trafic de drogue se maintenaient dans les zones vidéosurveillées.<br><br>
               L'étude de <a href='https://gh.copernicus.org/articles/73/63/2018/' target="_blank"><em>l'Université de Neuchâtel à Genève (2014–2016)</em></a> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.
-              <p class="popup-content">
-                <strong>Limites du jeu:</strong><br><br>
-                Ce jeu est à but purement pédagogique. Il vise principalement à mettre en évidence l'ampleur du projet de vidéosurveillance avancé par la Municipalité.<br><br>
-                Il est essentiel de se rappeler que:<br><br>
-                1. Le rayon de 400 m² couvert par les cercles correspond à la limite pour reconnaitre des visages. Il est possible de reconnaitre des habits ou d'autres aspect d'une scène à une plus grande distance.<br><br>
-                2. Le taux de couverture calculé ci-dessus ne tient pas compte des obstacles visuels comme les bâtiments, les arbres ou le mobilier urbain, qui réduiraient encore davantage la couverture effective.<br><br>
-                3. Il est peu probable que les caméras filment à 360°. Vraisemblablement, elles seront directionnels, ce qui changeraient leur rayon d'action.<br><br>
-            </p>
             </div>
+            <div class="collapsible-section">
+  <button class="collapsible-button">Afficher les limites du jeu</button>
+  <div class="collapsible-content">
+    <p class="popup-studies">Ce jeu est à but purement pédagogique. Il vise principalement à mettre en évidence l'ampleur du projet de vidéosurveillance avancé par la Municipalité.</p>
+    <p class="popup-studies">Il est essentiel de se rappeler que:</p>
+    <ol>
+      <li class="popup-studies">Le rayon de 400 m² couvert par les cercles correspond à la limite pour reconnaitre des visages. Il est possible de reconnaitre des habits ou d'autres aspect d'une scène à une plus grande distance.</li>
+      <li class="popup-studies">Le taux de couverture calculé ci-dessus ne tient pas compte des obstacles visuels comme les bâtiments, les arbres ou le mobilier urbain, qui réduiraient encore davantage la couverture effective.</li>
+      <li class="popup-studies">Il est peu probable que les caméras filment à 360°. Vraisemblablement, elles seront directionnels, ce qui changeraient leur rayon d'action.</li>
+    </ol>
+  </div>
+</div>
             <button class="popup-button" id="closePopup">Fermer</button>
             <button class="popup-button" id="resetButton">Réinitialiser la carte</button>
             <button class="popup-button" onclick="window.location.href='https://noncamerasvevey.ch/'">Visiter le site NON AUX CAMERAS</button>
@@ -551,6 +609,33 @@
         `;
         
         document.body.appendChild(popupOverlay);
+
+        document.body.appendChild(popupOverlay);
+
+// Add this code right here to set up the collapsible functionality
+const collButtons = popupOverlay.getElementsByClassName("collapsible-button");
+for (let i = 0; i < collButtons.length; i++) {
+  collButtons[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    const content = this.nextElementSibling;
+    if (content.style.maxHeight) {
+      content.style.maxHeight = null;
+    } else {
+      content.style.maxHeight = content.scrollHeight + "px";
+    }
+  });
+}
+
+// Add event listener for the close button
+document.getElementById('closePopup').addEventListener('click', function() {
+  document.body.removeChild(popupOverlay);
+});
+
+// The existing reset button event listener remains the same
+document.getElementById('resetButton').addEventListener('click', function() {
+  resetMap();
+  document.body.removeChild(popupOverlay);
+});
         
         // Ajouter un gestionnaire d'événements au bouton de réinitialisation
         document.getElementById('resetButton').addEventListener('click', function() {
@@ -652,6 +737,8 @@
         touchStartX = null;
       }
     });
+
+
   </script>
   <audio id="cashSound" src="https://marcbertholet.github.io/map/cash-register-kaching-sound-effect-125042.mp3" preload="auto"></audio>
 </body>
