@@ -525,19 +525,21 @@
       const totalArea = numCameras * CAMERA_AREA;
       
       // Facteur de chevauchement basé sur le nombre de caméras
-      let overlapFactor;
-      if (numCameras <= 5) overlapFactor = 0.05;
-      else if (numCameras <= 15) overlapFactor = 0.15;
-      else if (numCameras <= 30) overlapFactor = 0.25;
-      else overlapFactor = 0.35;
+      // let overlapFactor;
+      // if (numCameras <= 5) overlapFactor = 0.05;
+      // else if (numCameras <= 15) overlapFactor = 0.15;
+      // else if (numCameras <= 30) overlapFactor = 0.25;
+      // else overlapFactor = 0.35;
       
       // Surface unique couverte
-      const uniqueArea = Math.min(totalArea * (1 - overlapFactor), ZONE_AREA);
+      // const uniqueArea = Math.min(totalArea * (1 - overlapFactor), ZONE_AREA);
+      const uniqueArea = Math.min(totalArea, ZONE_AREA);
+
       const coveragePercentage = (uniqueArea / ZONE_AREA) * 100;
       
       return {
         uniqueArea: Math.round(uniqueArea),
-        overlapPercentage: Math.round(overlapFactor * 100),
+        // overlapPercentage: Math.round(overlapFactor * 100),
         coveragePercentage: coveragePercentage.toFixed(2),
         camerasPlaced: numCameras,
         totalCost: numCameras * COST_PER_MARKER
