@@ -604,6 +604,21 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 }
 
     map.on('click', function (e) {
+            let isInZone = false;
+      if (cameraZoneData) {
+        const point = turf.point([e.latlng.lng, e.latlng.lat]);
+        isInZone = cameraZoneData.features.some(feature => {
+          return turf.booleanPointInPolygon(point, feature);
+        });
+      }
+
+      if (!isInZone) {
+        L.popup()
+          .setLatLng(e.latlng)
+          .setContent("❌ Les caméras doivent être placées dans la zone définie")
+          .openOn(map);
+        return;
+      }
       if (markerCount >= MAX_MARKERS-1) {
         // Add the last camera
         const latlng = e.latlng;
