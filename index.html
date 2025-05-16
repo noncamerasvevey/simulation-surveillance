@@ -516,44 +516,103 @@
       popupAnchor: [0, -16]
     });
 
-    // Fonction de calcul de couverture simplifiée
-    function calculateSimpleCoverage(cameras) {
-      const CAMERA_AREA = 400; // m² par caméra
-      const ZONE_AREA = 75000; // Zone totale en m²
-      
-      const numCameras = cameras.length;
-      const totalArea = numCameras * CAMERA_AREA;
-      
-      // Facteur de chevauchement basé sur le nombre de caméras
-      // let overlapFactor;
-      // if (numCameras <= 5) overlapFactor = 0.05;
-      // else if (numCameras <= 15) overlapFactor = 0.15;
-      // else if (numCameras <= 30) overlapFactor = 0.25;
-      // else overlapFactor = 0.35;
-      
-      // Surface unique couverte
-      // const uniqueArea = Math.min(totalArea * (1 - overlapFactor), ZONE_AREA);
-      const uniqueArea = Math.min(totalArea, ZONE_AREA);
+function calculateCameraOverlap(cameras) {
+  const CAMERA_AREA = 400; // m² per camera
+  const ZONE_AREA = 75000; // Total target zone (adjust as needed)
+  const RADIUS = Math.sqrt(CAMERA_AREA / Math.PI); // Radius in meters
 
-      const coveragePercentage = (uniqueArea / ZONE_AREA) * 100;
+  if (!cameras || cameras.length === 0) {
+    return {
+      uniqueArea: 0,
+      coveragePercentage: "0.00",
+      camerasPlaced: 0,
+      totalCost: 0,
+      overlapArea: 0,
+      overlapPercentage: "0.00"
+    };
+  }
+
+  // Use Monte Carlo method to estimate coverage
+  // This avoids the issue with double-counting overlaps
+  const NUM_POINTS = 10000; // Increase for more accuracy
+  const GRID_SIZE = 300; // meters - should cover the entire zone
+  const CENTER_LAT = 46.46317; // Center of Vevey
+  const CENTER_LON = 6.84255;
+  
+  let pointsInAnyCircle = 0;
+
+  for (let i = 0; i < NUM_POINTS; i++) {
+    // Generate random point within the zone
+    // Using a simple square for now - if needed, can be refined to follow the actual zone boundary
+    const lat = CENTER_LAT + (Math.random() - 0.5) * (GRID_SIZE / 111000); // rough conversion to degrees
+    const lon = CENTER_LON + (Math.random() - 0.5) * (GRID_SIZE / 111000 / Math.cos(CENTER_LAT * Math.PI / 180));
+    
+    // Check if this point is inside any camera circle
+    let insideAnyCircle = false;
+    for (let j = 0; j < cameras.length; j++) {
+      const camPos = cameras[j].getLatLng();
+      const dist = calculateDistance(lat, lon, camPos.lat, camPos.lng);
       
-      return {
-        uniqueArea: Math.round(uniqueArea),
-        // overlapPercentage: Math.round(overlapFactor * 100),
-        coveragePercentage: coveragePercentage.toFixed(2),
-        camerasPlaced: numCameras,
-        totalCost: numCameras * COST_PER_MARKER
-      };
+      if (dist <= RADIUS) {
+        insideAnyCircle = true;
+        break;
+      }
     }
+    
+    if (insideAnyCircle) {
+      pointsInAnyCircle++;
+    }
+  }
+  
+  // Calculate proportion of points inside circles
+  const proportion = pointsInAnyCircle / NUM_POINTS;
+  
+  // Estimate areas
+  const totalAreaCovered = proportion * ZONE_AREA;
+  const totalTheoreticalArea = cameras.length * CAMERA_AREA;
+  const overlapArea = Math.max(0, totalTheoreticalArea - totalAreaCovered);
+  
+  // Ensure uniqueArea is never negative
+  const uniqueArea = Math.max(0, totalAreaCovered);
+  const coveragePercentage = Math.min((uniqueArea / ZONE_AREA) * 100, 100);
+  const overlapPercentage = (overlapArea / totalTheoreticalArea) * 100;
+
+  return {
+    uniqueArea: Math.round(uniqueArea),
+    coveragePercentage: coveragePercentage.toFixed(2),
+    camerasPlaced: cameras.length,
+    totalCost: cameras.length * COST_PER_MARKER,
+    overlapArea: Math.round(overlapArea),
+    overlapPercentage: overlapPercentage.toFixed(2)
+  };
+}
+
+// Helper function to calculate distance between two points (in meters)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371e3; // Earth's radius in meters
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+          Math.cos(φ1) * Math.cos(φ2) *
+          Math.sin(Δλ/2) * Math.sin(Δλ/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+}
 
     map.on('click', function (e) {
       if (markerCount >= MAX_MARKERS-1) {
-        // Ajouter la dernière caméra
+        // Add the last camera
         const latlng = e.latlng;
         if (soundEnabled) {
           const sound = document.getElementById("cashSound");
-          sound.volume = 0.1;
-          sound.play();
+          if (sound) {
+            sound.volume = 0.1;
+            sound.play();
+          }
         }
         
         const marker = L.marker(latlng, { icon: cameraIcon }).addTo(map);
@@ -573,10 +632,10 @@
         document.getElementById("cameraCount").innerText = markerCount;
         document.getElementById("costCount").innerText = `${totalCost.toLocaleString()} CHF`;
         
-        // Calculer la couverture 
-        const coverage = calculateSimpleCoverage(markers);
+        // Calculate coverage 
+        const coverage = calculateCameraOverlap(markers);
         
-        // Créer la popup finale
+        // Create the final popup
         const popupOverlay = document.createElement('div');
         popupOverlay.className = 'fullscreen-popup';
         
@@ -594,53 +653,46 @@
               L'étude de <a href='https://gh.copernicus.org/articles/73/63/2018/' target="_blank"><em>l'Université de Neuchâtel à Genève (2014–2016)</em></a> a montré une légère baisse des infractions liées au deal de rue, et une explosion de celles-ci dans les rues adjacentes.
             </div>
             <div class="collapsible-section">
-  <button class="collapsible-button">Afficher les limites du jeu</button>
-  <div class="collapsible-content">
-    <p class="popup-studies">Ce jeu est à but purement pédagogique. Il vise principalement à mettre en évidence l'ampleur du projet de vidéosurveillance avancé par la Municipalité.</p>
-    <p class="popup-studies">Il est essentiel de se rappeler que:</p>
-    <ol>
-      <li class="popup-studies">Le rayon de 400 m² couvert par les cercles correspond à la limite pour reconnaitre des visages. Il est possible de reconnaitre des habits ou d'autres aspect d'une scène à une plus grande distance.</li>
-      <li class="popup-studies">Le taux de couverture calculé ci-dessus ne tient pas compte des obstacles visuels comme les bâtiments, les arbres ou le mobilier urbain, qui réduiraient encore davantage la couverture effective.</li>
-      <li class="popup-studies">Il est peu probable que les caméras filment à 360°. Vraisemblablement, elles seront directionnels, ce qui changeraient leur rayon d'action.</li>
-    </ol>
-  </div>
-</div>
+              <button class="collapsible-button">Afficher les limites du jeu</button>
+              <div class="collapsible-content">
+                <p class="popup-studies">Ce jeu est à but purement pédagogique. Il vise principalement à mettre en évidence l'ampleur du projet de vidéosurveillance avancé par la Municipalité.</p>
+                <p class="popup-studies">Il est essentiel de se rappeler que:</p>
+                <ol>
+                  <li class="popup-studies">Le rayon de 400 m² couvert par les cercles correspond à la limite pour reconnaitre des visages. Il est possible de reconnaitre des habits ou d'autres aspect d'une scène à une plus grande distance.</li>
+                  <li class="popup-studies">Le taux de couverture calculé ci-dessus ne tient pas compte des obstacles visuels comme les bâtiments, les arbres ou le mobilier urbain, qui réduiraient encore davantage la couverture effective.</li>
+                  <li class="popup-studies">Il est peu probable que les caméras filment à 360°. Vraisemblablement, elles seront directionnels, ce qui changeraient leur rayon d'action.</li>
+                </ol>
+              </div>
+            </div>
             <button class="popup-button" id="closePopup">Fermer</button>
             <button class="popup-button" id="resetButton">Réinitialiser la carte</button>
             <button class="popup-button" onclick="window.location.href='https://noncamerasvevey.ch/'">Visiter le site NON AUX CAMERAS</button>
           </div>
         `;
         
+        // Ajout du popup au document body - UNE SEULE FOIS
         document.body.appendChild(popupOverlay);
 
-        document.body.appendChild(popupOverlay);
+        // Configuration des boutons collapsibles dans le popup
+        const collButtons = popupOverlay.getElementsByClassName("collapsible-button");
+        for (let i = 0; i < collButtons.length; i++) {
+          collButtons[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            const content = this.nextElementSibling;
+            if (content.style.maxHeight) {
+              content.style.maxHeight = null;
+            } else {
+              content.style.maxHeight = content.scrollHeight + "px";
+            }
+          });
+        }
 
-// Add this code right here to set up the collapsible functionality
-const collButtons = popupOverlay.getElementsByClassName("collapsible-button");
-for (let i = 0; i < collButtons.length; i++) {
-  collButtons[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    const content = this.nextElementSibling;
-    if (content.style.maxHeight) {
-      content.style.maxHeight = null;
-    } else {
-      content.style.maxHeight = content.scrollHeight + "px";
-    }
-  });
-}
+        // Gestionnaire d'événement pour le bouton de fermeture
+        document.getElementById('closePopup').addEventListener('click', function() {
+          document.body.removeChild(popupOverlay);
+        });
 
-// Add event listener for the close button
-document.getElementById('closePopup').addEventListener('click', function() {
-  document.body.removeChild(popupOverlay);
-});
-
-// The existing reset button event listener remains the same
-document.getElementById('resetButton').addEventListener('click', function() {
-  resetMap();
-  document.body.removeChild(popupOverlay);
-});
-        
-        // Ajouter un gestionnaire d'événements au bouton de réinitialisation
+        // Gestionnaire d'événement pour le bouton de réinitialisation
         document.getElementById('resetButton').addEventListener('click', function() {
           resetMap();
           document.body.removeChild(popupOverlay);
@@ -731,17 +783,17 @@ document.getElementById('resetButton').addEventListener('click', function() {
         let deltaX = e.changedTouches[0].clientX - touchStartX;
         const sidebar = document.getElementById("sidebar");
 
-        if (deltaX < -80) {
-          sidebar.classList.add("hidden"); // swipe gauche
-        } else if (deltaX > 80) {
-          sidebar.classList.remove("hidden"); // swipe droite
+        if (sidebar) {
+          if (deltaX < -80) {
+            sidebar.classList.add("hidden"); // swipe gauche
+          } else if (deltaX > 80) {
+            sidebar.classList.remove("hidden"); // swipe droite
+          }
         }
 
         touchStartX = null;
       }
     });
-
-
   </script>
   <audio id="cashSound" src="https://marcbertholet.github.io/map/cash-register-kaching-sound-effect-125042.mp3" preload="auto"></audio>
 </body>
